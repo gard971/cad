@@ -1,0 +1,153 @@
+<h1>User managment</h1>
+<container id="addDep">
+    <ul id="addDepUL">
+        <li>Somthing went wrong when loading users. Please refresh the page</li>
+    </ul>
+</container>
+<script src="/socket.io/socket.io.js"></script>
+<script
+  src="https://code.jquery.com/jquery-3.4.1.js"
+  integrity="sha256-WpOohJOqMqqyKL9FccASB9O0KwACQJpFTUBLTYOVvVU="
+  crossorigin="anonymous"></script>
+<script>
+    var socket = io()
+    var addingAdmin;
+    var removingAdmin;
+    $(function() {
+        if(sessionStorage.getItem("dep") != "admin"){
+            window.location.href="index.html"
+        }
+        else{
+            socket.emit("check", localStorage.getItem("username"), localStorage.getItem("key"), true)
+        }
+    })
+    socket.on("deps", (array) => {
+            for(var i = 0; i<array.length; i++){
+            if(array[i] == "admin"){
+                socket.emit("requestAllUsers")
+                if(addingAdmin){
+                    socket.emit("newAdmin", addingAdmin[1], localStorage.getItem("username"))
+                    window.location.reload()
+                }
+                else if(removingAdmin){
+                    socket.emit("removeAdmin", removingAdmin[1], localStorage.getItem("username"))
+                    window.location.reload()
+                }
+                return false;
+            }
+        }
+        sessionStorage.clear()
+        localStorage.clear()
+        window.location.href="index.html"
+    })
+    socket.on("notAllowed", () => {
+        window.location.href="index.html"
+    })
+    socket.on("allUsers", (users) => {
+        var completed
+        $("#addDepUL").empty()
+        for(var i = 0; i<users.length; i++){users[u]
+            if(users[i].admin == true){
+                $("#addDepUL").append("<li>"+users[i].username+"<container id='userSelect'><select id='"+users[i].username+"AddDepSelect' onchange=addDep('"+users[i].username+"')><option hidden selected>Add department</option></select> <select id='"+users[i].username+"RemoveDepSelect' onchange=removeDep('"+users[i].username+"')><option hidden selected>remove department</option></select><button id='adminBTN' onclick=removeAdmin('"+users[i].username+"')>Remove Admin</button></container></li>")
+            }
+            else{
+                $("#addDepUL").append("<li>"+users[i].username+"<container id='userSelect'><select id='"+users[i].username+"AddDepSelect'><option hidden selected>Add department</option></select> <select id='"+users[i].username+"RemoveDepSelect'><option hidden selected>remove department</option></select><button id='adminBTN' onclick=addNewAdmin('"+users[i].username+"')>Add admin</button></container></li>")
+            }
+            for(var u = 0; u<allDepartments.length; u++){
+                    if(users[i].deps.includes(allDepartments[u])){
+                        //user has access to the department so we append it to the "remove department select"
+                        var option = document.createElement("option");
+                        option.id = allDepartments[u]
+                        option.text = allDepartments[u]
+                        document.getElementById(users[i].username+"RemoveDepSelect").appendChild(option)
+                    }
+                    else{
+                        var option = document.createElement("option")
+                        option.text = allDepartments[u]
+                        option.id = allDepartments[u]
+                        document.getElementById(users[i].username+"AddDepSelect").appendChild(option)
+                    }
+            }
+        }
+    })
+    function addNewAdmin(name){
+        if(confirm("Are you sure? All actions are logged")){
+            check(true)
+            addingAdmin = [true, name]
+        }
+    }
+    function removeAdmin(name){
+        if(confirm("Are you sure? All actions are logged")){
+            check(true)
+            removingAdmin = [true, name]
+        }
+    }
+    function removeDep(name){
+        if(confirm("Are you sure? all actions are logged")){
+            var value = document.getElementById(name+"RemoveDepSelect")
+            var selectValue = value.options[value.selectedIndex].id
+            socket.emit("removeDep", selectValue, name)
+            socket.emit("log", localStorage.getItem("username")+" Just removed department "+selectValue+" , from user "+name)
+            window.location.reload()
+        }
+    }
+    function addDep(name){
+        if(confirm("Are you sure? all actions are logged")){
+            var value = document.getElementById(name+"AddDepSelect")
+            var selectValue = value.options[value.selectedIndex].id
+            socket.emit("addDep", selectValue, name)
+            socket.emit("log", localStorage.getItem("username")+" Just added department "+selectValue+" , to user "+name)
+            window.location.reload()
+        }
+    }
+</script>
+<script src="/script/public.js"></script>
+<style>
+    #addDep{
+        overflow:scroll;
+        border-style: solid;
+        border-color:black;
+        border-width:1px;
+        position: absolute;
+        top:30%;
+        left:30%;
+        width: 35%;
+        height: 35%;
+        overflow-x: hidden;
+    }
+    #addDepSelect{
+        margin:none;
+    }
+    p{
+        margin:0;
+        padding:0;
+    }
+    ul{
+        list-style: none;
+    }
+    #addDep select{
+        position: relative;
+        left:2%;
+    }
+    #addDep li{
+        width:100%;
+        position: relative;
+        left:-7%;
+        padding:2%;
+        padding-right: 7%;
+        border-style:solid;
+        border-color:black;
+        border-width:1%;
+        border-left:none;
+        border-right:none;
+        border-top:none;
+    }
+    #adminBTN{
+        position: absolute;
+        left:110%;
+    }
+    #userSelect{
+        position: absolute;
+        left:35%;
+    }
+</style>

@@ -1,0 +1,77 @@
+<container id="depSelectContainer">
+    <audio id="audio">
+        <source src="media/boot.mp3">
+    </audio>
+<select id="depSelect">
+    <option selected disabled value="start">Select department</option>
+</select><br>
+<button onclick="go()">Go!</button>
+</container>
+<style>
+html{
+    background-image: url(media/normalBack.jpg);
+    background-repeat: no-repeat;
+    background-size: 100% 100%;
+}
+#depSelectContainer{
+    background-color:rgb(191, 188, 188);
+    padding:5%;
+    text-align: center;
+    position:absolute;
+    top:35%;
+    left:39%;
+    border-color:rgb(133, 131, 131);
+    border-style:solid;
+    border-width:10px;
+    border-radius: 20%;
+}
+#depSelect{
+    text-align:center;
+}
+</style>
+<script src="/socket.io/socket.io.js"></script>
+<script
+  src="https://code.jquery.com/jquery-3.4.1.js"
+  integrity="sha256-WpOohJOqMqqyKL9FccASB9O0KwACQJpFTUBLTYOVvVU="
+  crossorigin="anonymous"></script>
+<script>
+    var socket = io()
+    $(function(){
+        if(localStorage.getItem("username") && localStorage.getItem("key")){
+            socket.emit("check", localStorage.getItem("username"), localStorage.getItem("key"), true)
+        }
+        else{
+            window.location.href="index.html"
+        }
+        var audio = document.getElementById("audio")
+        audio.play()
+    })
+    function go(){
+        var value = document.getElementById("depSelect")
+        var selectValue = value.options[value.selectedIndex].value
+        if(selectValue == "start"){
+            alert("please select a department first")
+        }
+        else if(selectValue == "communications"){
+            sessionStorage.setItem("dep", selectValue)
+            window.location.href="dispatch.html"
+        }
+        else if(selectValue == "admin"){
+            sessionStorage.setItem("dep", selectValue)
+            window.location.href="admin.html"
+        }
+        else{
+            sessionStorage.setItem("dep", selectValue)
+            window.location.href="loggedin.html"
+        }
+    }
+    socket.on("notAllowed", () => {
+        window.location.href="index.html"
+    })
+    socket.on("deps", (array) => {
+        for(var i = 0; i<array.length; i++){
+            $("#depSelect").append("<option value='"+array[i]+"'>"+array[i]+"</option")
+        }
+    })
+</script>
+<script src="/script/public.js"></script>

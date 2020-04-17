@@ -1,0 +1,1 @@
+Files will be added here by the code automaticly when that is needed. The data folder will NOT be created and the app may crash witouth it so do NOT delete it

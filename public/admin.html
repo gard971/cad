@@ -51,7 +51,7 @@
                 $("#addDepUL").append("<li>"+users[i].username+"<container id='userSelect'><select id='"+users[i].username+"AddDepSelect' onchange=addDep('"+users[i].username+"')><option hidden selected>Add department</option></select> <select id='"+users[i].username+"RemoveDepSelect' onchange=removeDep('"+users[i].username+"')><option hidden selected>remove department</option></select><button id='adminBTN' onclick=removeAdmin('"+users[i].username+"')>Remove Admin</button></container></li>")
             }
             else{
-                $("#addDepUL").append("<li>"+users[i].username+"<container id='userSelect'><select id='"+users[i].username+"AddDepSelect'><option hidden selected>Add department</option></select> <select id='"+users[i].username+"RemoveDepSelect'><option hidden selected>remove department</option></select><button id='adminBTN' onclick=addNewAdmin('"+users[i].username+"')>Add admin</button></container></li>")
+                $("#addDepUL").append("<li>"+users[i].username+"<container id='userSelect'><select id='"+users[i].username+"AddDepSelect' onchange=addDep('"+users[i].username+"')><option hidden selected>Add department</option></select> <select id='"+users[i].username+"RemoveDepSelect' oncahnge=removeDep('"+users[i].username+"')><option hidden selected>remove department</option></select><button id='adminBTN' onclick=addNewAdmin('"+users[i].username+"')>Add admin</button></container></li>")
             }
             for(var u = 0; u<allDepartments.length; u++){
                     if(users[i].deps.includes(allDepartments[u])){

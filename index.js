@@ -2,7 +2,7 @@
 
 //////CONFIG will require a server restart before beeing put into effect///////
 
-var useLogs = false //change this variable to false to disable action logging like when admins adds/removes departments, will not affect error logging
+var useLogs = true //change this variable to false to disable action logging like when admins adds/removes departments, will not affect error logging
 var serverRestarted = true //Change this to false to disable page reloading on server restart. Due to login security it is recomended to keep it on
 var port = 3000; //only change this if you are running multiple services on the network, and you know what you are doing
 
@@ -545,9 +545,9 @@ io.on("connection", (socket) => {
                 found = true
                 var newObject = {
                     "gunName":gun,
-                    "gunID":Math.random()
+                    "gunID":Math.floor(Math.random() * 10000000000)
                 }
-                name.gunLicenses.push(newObject)
+                name.guns.push(newObject)
                 socket.emit("GunCreated", newObject.gunID)
             }
         })
@@ -572,14 +572,14 @@ process.on("uncaughtException", err => {
 })
 function jsonRead(file){ //used to read json files 
     var temp = fs.readFileSync(file, "utf-8", (err) => {
-        if(err) log(err); console.log(err)
+        if(err){ log(err); console.log(err)}
     })
     var json = JSON.parse(temp)
     return json;
 }
 function jsonWrite(data, file){//used to write to json files
     fs.writeFile(file, JSON.stringify(data), (err) => {
-        if(err) log(err); console.log(err)
+        if(err){ log(err); console.log(err)}
     })
 }
 function log(msg, isErr){ //main logging function

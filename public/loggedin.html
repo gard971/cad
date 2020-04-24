@@ -1,5 +1,5 @@
 <body onunload="unload()">
-<img id="database" src="media/person.png" ondblclick="windowHandle('databaseCont', false)" hidden>
+<img id="database" src="media/person.png" onclick="windowHandle('databaseCont', false)" hidden>
 <container id="databaseCont" hidden>
     <img id="close" src="media/close.png" onclick="windowHandle('databaseCont', true)">
     <p>Person Search</p>
@@ -9,7 +9,7 @@
         <input type="submit" value="search">
     </form>
 </container><br>
-<container id="vehicleCont" ondblclick="windowHandle('carDataCont', false)" hidden>
+<container id="vehicleCont" onclick="windowHandle('carDataCont', false)" hidden>
     <img id="vehicle" src="media/car.png">
 </container><br>
 <container id="carDataCont" hidden>
@@ -21,7 +21,7 @@
     </form>
 </container>
 <container id="comsCont" hidden>
-    <img id="coms" src="media/coms.png" ondblclick="windowHandle('comsPgCont', false)">
+    <img id="coms" src="media/coms.png" onclick="windowHandle('comsPgCont', false)">
 </container>
 <container id="comsPgCont" hidden>
     <p id="currentCall">Current Call: <container id="currentCallVar">None</container></p>
@@ -69,18 +69,22 @@
     <p>BirthDate: <container id="birthDateInfo">undefined</container></p>
     <p>Build type: <container id="buildTypeInfo">undefined</container></p>
     <p>License Status: <container id="licensesInfo">none</container></p>
-    <container id="warrants">
-        <button id="addWarrantButton" onclick="windowHandle('databaseInfo', true); windowHandle('newWarrant', false)">+</button>
-        <button id="removeAllWarrants" onclick="removeAllWarrants()">remove all</button> 
-        <p>Warrants:</p>
-            <ul id="warrantsUL"></ul>
-        </container>
     <h4>Change License Status:</h4>
     <select id="changeLicenseSelect" onchange="changeLicense(false)">
         <option id="valid">Valid</option>
         <option id="suspended">Suspended</option>
         <option id="recalled">Recalled (To Be suspended when found)</option>
-    </select>
+    </select><br><br>
+    <container id="warrants">
+        <button id="addWarrantButton" onclick="windowHandle('databaseInfo', true); windowHandle('newWarrant', false)">+</button>
+        <button id="removeAllWarrants" onclick="removeAllWarrants()">remove all</button> 
+        <p>Warrants:</p>
+            <ul id="warrantsUL"></ul>
+    </container>
+    <container id="guns">
+        <p>Registered Guns:</p>
+        <ul id="gunsUL"></ul>
+    </container>
 </container>
 <container id="vehicleInfo" hidden>
     <img id="close" src="media/close.png" onclick="windowHandle('vehicleInfo', true)">
@@ -121,7 +125,7 @@
         <option value="none">none</option>
     </select>
 </container>
-<container id="DMVIconCont" ondblclick="windowHandle('DMVCont'), false" hidden>
+<container id="DMVIconCont" onclick="windowHandle('DMVCont'), false" hidden>
     <img src="/media/dmv.png" id="DMVIcon">
 </container><br>
 <container id="DMVCont" hidden>
@@ -130,7 +134,7 @@
     <button onclick="windowHandle('DMVCont', true); windowHandle('newVehicleCont', false);">Register New Vehicle</button><br>
     <button onclick="windowHandle('DMVCont', true); windowHandle('licenseHubCont', false); grabLicense(); check(false)">License Center</button>
 </container>
-<conatiner id="atfIconCont" ondblclick="windowHandle('atfCont', false)">
+<conatiner id="atfIconCont" onclick="windowHandle('atfCont', false)" hidden>
     <img src="/media/atf.png" id="atfIcon">
 </conatiner>
 <container id="atfCont" hidden>
@@ -139,7 +143,7 @@
     <button id="newGunButton" onclick="windowHandle('newGunCont', false); windowHandle('atfCont', true)">Register New Gun</button>
     <button id="newGunLicensesButton">Licenses</button>
 </container>
-<container id="newGunCont">
+<container id="newGunCont" hidden>
     <img src="/media/close.png" id="close" onclick="windowHandle('newGunCont', true)">
     <input id="gunTypeInput" placeholder="Gun Type"><br>
     <button onclick="registerNewGun()">Register</button>

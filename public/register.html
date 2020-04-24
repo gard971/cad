@@ -16,7 +16,7 @@
         left:50%;
     }
     html{
-        background-image:url(media/xpBackground.png);
+        background-image:url(media/registerBackground.png);
         background-size:100% 100%; 
         background-repeat: no-repeat;
     }
@@ -42,6 +42,7 @@
     }
     #new:hover{
         font-size: 108%;
+        cursor: pointer;
     }
     #registerP{
         color: white;
@@ -62,7 +63,7 @@
     $('form').keypress(function (e) {
   if (e.which == 13) {
       console.log("sbm")
-    $('form#login').submit();  //<---- Add this line
+    $('form#login').submit();
         if(document.getElementById("text").placeholder == "Email" && ValidateEmail($("#text").val())){
             email = $("#text").val()
             $("#text").val("")
@@ -73,6 +74,9 @@
         else if($("#text").val() == $("#pass2").val()){
             password = MD5($("#pass2").val())
             socket.emit("register", email, password)
+        }
+        else{
+            alert("the passwords didnt match")
         }
     }
 });

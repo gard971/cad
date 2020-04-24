@@ -23,7 +23,8 @@ var callsignChange
             "Build":selectValue,
             "license":[],
             "warrants":[],
-            "gunLicenses":[]
+            "gunLicenses":[],
+            "guns":[]
         }
         socket.emit("newCharacter",localStorage.getItem("username"), formInfo)
     }
@@ -101,12 +102,12 @@ var callsignChange
             window.location.href="dep.html"
         }
         if(found && sessionStorage.getItem("dep") == "LSPD" || sessionStorage.getItem("dep") == "LSCS" || sessionStorage.getItem("dep") == "LSHP"){
-            document.getElementById("database").hidden = false
-            document.getElementById("vehicleCont").hidden = false
-            document.getElementById("comsCont").hidden = false
+            windowHandle("database", false)
+            windowHandle("vehicleCont", false)
+            windowHandle("comsCont", false)
         }
         else if(sessionStorage.getItem("dep") == "civillian"){
-            document.getElementById("selectCharacter").hidden = false
+            windowHandle("selectCharacter", false)
             socket.emit("requestCivs", localStorage.getItem("username"))
         }
     })
@@ -148,6 +149,8 @@ var callsignChange
     })
     socket.on("civInfo", (civ) => {
         socket.emit("check", localStorage.getItem("username"), localStorage.getItem("key"), true)
+        $("#warrantsUL").empty()
+        $("#gunsUL").empty()
         if(civ == false){
             alert("No results")
         }
@@ -167,20 +170,23 @@ var callsignChange
                 $("#changeLicenseSelect").append("<option selected hidden disabled value=none>none</option>")
 
             }
-            console.log(civ.warrants)
             if(civ.warrants == ""){
-                console.log("ran")
-                $("#warrantsUL").empty()
+
                 $("#warrantsUL").append("<li style='color:green;'>none</li>")
             }
             else{
-                $("#warrantsUL").empty()
                 for(var i = 0; i<civ.warrants.length; i++){
                     $("#warrantsUL").append("<li style='color:red;'>Title: "+civ.warrants[i].title+" <br>Description: "+civ.warrants[i].description+"</li><br>")
                 }
             }
-
-
+            if(civ.guns == ""){
+                $("#gunsUL").append("<li style='color:green;'>none</li>")
+            }
+            else{
+                civ.guns.forEach(gun => {
+                    $("#gunsUL").append(`<li style='color:orange;'>${gun.gunName} ID: ${gun.gunID}</li>`)
+                })
+            }
         }
     })
     socket.on("plateReturn", (plateReturn) => {
@@ -245,6 +251,9 @@ var callsignChange
             document.getElementById("currentCallVar").innerHTML = "None"
         }
     })
+    socket.on("GunCreated", (id) => {
+        alert(`Gun created with uniqe ID of '${id}'`)
+    })
     function windowHandle(window, action){
        document.getElementById(window).hidden = action
     }
@@ -281,6 +290,7 @@ var callsignChange
         sessionStorage.setItem("civname", selectValue)
         windowHandle("selectCharacter", true)
         windowHandle('DMVIconCont', false)
+        windowHandle("atfIconCont", false)
     }
     function grabLicense(){
         socket.emit("grabLicense", sessionStorage.getItem("civname"), localStorage.getItem("username"))

@@ -1,3 +1,4 @@
+//for future implementation. There will be a fivem server integration where you can search users from the fivem chat soon
 const app = require("express")();
 const http = require("http").createServer(app)
 const io = require("socket.io")(http)

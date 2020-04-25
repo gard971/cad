@@ -1,8 +1,13 @@
 <h1>User managment</h1>
 <container id="addDep">
+    <label>Manual Managment:</label>
     <ul id="addDepUL">
         <li>Somthing went wrong when loading users. Please refresh the page</li>
     </ul>
+</container>
+<container id="requests">
+    <label>Requests:</label>
+    <ul id="requestsUL">None</ul>
 </container>
 <script src="/socket.io/socket.io.js"></script>
 <script
@@ -25,6 +30,7 @@
             for(var i = 0; i<array.length; i++){
             if(array[i] == "admin"){
                 socket.emit("requestAllUsers")
+                socket.emit("getRequests")
                 if(addingAdmin){
                     socket.emit("newAdmin", addingAdmin[1], localStorage.getItem("username"))
                     window.location.reload()
@@ -70,6 +76,15 @@
             }
         }
     })
+    socket.on("allRequests", (requests) => {
+        $("#requestsUL").empty()
+        var requestId = 0
+        requests.forEach(request => {
+            $("#requestsUL").append(`<li id=requestNBR${requestId}>User ${request.username} requested department ${request.requestedDepartment} <button onclick="decline(${requestId})">Decline</button><button onclick="accept(${requestId})">Accept</button></li>`)
+            sessionStorage.setItem(`requestNBR${requestId}INFO`, JSON.stringify({"username":request.username, "department":request.requestedDepartment}))
+            requestId++
+        })
+    })
     function addNewAdmin(name){
         if(confirm("Are you sure? All actions are logged")){
             check(true)
@@ -82,7 +97,7 @@
             removingAdmin = [true, name]
         }
     }
-    function removeDep(name){
+    function removeDep(name, dep){
         if(confirm("Are you sure? all actions are logged")){
             var value = document.getElementById(name+"RemoveDepSelect")
             var selectValue = value.options[value.selectedIndex].id
@@ -91,14 +106,28 @@
             window.location.reload()
         }
     }
-    function addDep(name){
+    function addDep(name, dep){
         if(confirm("Are you sure? all actions are logged")){
+            if(!dep){
             var value = document.getElementById(name+"AddDepSelect")
-            var selectValue = value.options[value.selectedIndex].id
-            socket.emit("addDep", selectValue, name)
-            socket.emit("log", localStorage.getItem("username")+" Just added department "+selectValue+" , to user "+name)
+            dep = value.options[value.selectedIndex].id
+            }
+            socket.emit("addDep", dep, name)
+            socket.emit("log", localStorage.getItem("username")+" Just added department "+dep+" , to user "+name)
             window.location.reload()
         }
+    }
+    function decline(requestId){
+        if(confirm("Are you sure? all actions are logged")){
+            var info = JSON.parse(sessionStorage.getItem(`requestNBR${requestId}INFO`))
+            socket.emit("removeRequest", info.username, info.department, false)
+            socket.emit("log", `user ${localStorage.getItem("username")} just declined ${info.username}\`s request to add department ${info.department} to their account `)
+        }
+    }
+    function accept(requestId){
+        var info = JSON.parse(sessionStorage.getItem(`requestNBR${requestId}INFO`))
+        addDep(info.username, info.department)
+        socket.emit("removeRequest", info.username, info.department, true)
     }
 </script>
 <script src="/script/public.js"></script>
@@ -110,7 +139,7 @@
         border-width:1px;
         position: absolute;
         top:30%;
-        left:30%;
+        left:10%;
         width: 35%;
         height: 35%;
         overflow-x: hidden;
@@ -149,5 +178,41 @@
     #userSelect{
         position: absolute;
         left:35%;
+    }
+    #requests{
+        overflow:scroll;
+        border-style: solid;
+        border-color:black;
+        border-width:1px;
+        position: absolute;
+        top:30%;
+        left:50%;
+        width: 35%;
+        height: 35%;
+        overflow-x: hidden;
+    }
+    label{
+        font-size: large;
+        font-weight: bold;
+        position: relative;
+    }
+    #addDep label{
+        left:40%;
+    }
+    #requests label{
+        left:45%;
+    }
+    #requests li{
+        width:100%;
+        position: relative;
+        left:-7%;
+        padding:2%;
+        padding-right: 7%;
+        border-style:solid;
+        border-color:black;
+        border-width:1%;
+        border-left:none;
+        border-right:none;
+        border-top:none;
     }
 </style>

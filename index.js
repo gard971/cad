@@ -5,6 +5,8 @@
 var useLogs = true //change this variable to false to disable action logging like when admins adds/removes departments, will not affect error logging
 var serverRestarted = true //Change this to false to disable page reloading on server restart. Due to login security it is recomended to keep it on
 var port = 3000; //only change this if you are running multiple services on the network, and you know what you are doing
+var emailUsername = "" //email used to send emails to people who has requested a department. Leave blank to disable mailing. Only compatible with gmail atm
+var emailPassword = "" //Password used to send emails DO NOT USE YOUR NORMAL PASSWORD THIS WILL NOT WORK!! use an app password instead. watch this video on how to generate one: https://www.youtube.com/watch?v=ndxUgivCszE
 
 ////////////////////
 
@@ -16,6 +18,7 @@ const http = require("http").createServer(app).listen(port, () => {console.log(`
 const io = require("socket.io")(http)
 const path = require("path")
 const express = require("express")
+const nodemailer = require("nodemailer")
 
 //api file. Required for the fivem ingame implementation
 const api = require(__dirname + "/api.js")
@@ -558,6 +561,66 @@ io.on("connection", (socket) => {
             jsonWrite(json ,`data/${username}/civillians.json`)
         }
     })
+    socket.on("newDepRequest", (username, department) => {
+        var json = jsonRead("data/users.json")
+        var found = false;
+        var alreadyRequested = false;
+        json.table.forEach(user => {
+            if(user.username == username){
+                found = true;
+            }
+        })
+        if(found){
+            if(!fs.existsSync("data/requests.json")){
+                var newObject = {
+                    "table":[]
+                }
+                fs.writeFileSync("data/requests.json", JSON.stringify(newObject))
+            }
+            json = jsonRead("data/requests.json")
+            json.table.forEach(request => {
+                if(request.username == username && request.requestedDepartment == department){
+                    alreadyRequested = true;
+                }
+            })
+            if(!alreadyRequested){
+                var newObject = {
+                    "username":username,
+                    "requestedDepartment":department
+                }
+                json.table.push(newObject)
+                jsonWrite(json, "data/requests.json")
+                socket.emit("requestMade")
+            }
+            else{
+                socket.emit("alreadyRequested")
+            }
+        }
+        else{
+            socket.emit("eror", "500 internal server error. Could not find the suplied username")
+        }
+    })
+    socket.on("getRequests", () => {
+        if(fs.existsSync("data/requests.json")){
+            var json = jsonRead("data/requests.json")
+            socket.emit("allRequests", json.table)
+        }
+    })
+    socket.on("removeRequest", (username, department, requestAccepted) => {
+        var json = jsonRead("data/requests.json")
+        json.table.forEach(request => {
+            if(request.username == username && request.requestedDepartment == department){
+                json.table.splice(json.table.indexOf(request), 1)
+                jsonWrite(json, "data/requests.json")
+            }
+            if(requestAccepted){
+                sendMail(username, "cad request", `Hi ${username}, Your cad request for department ${department} has been accepted and you can now login to the cad and check it out.`)
+            }
+            else{
+                sendMail(username, "cad request", `Hi ${username}, Your cad request for department ${department} has been declined. If you think this is an error please contact an administrator`)
+            }
+        })
+    })
 })
 process.on("SIGINT", () => {
     console.log("server shutting down")
@@ -570,6 +633,33 @@ process.on("uncaughtException", err => {
     console.log(`UncaugthException: ${err}, check log for more info`)
     log(`UncaugthException: ${err.stack}`, true)
 })
+function sendMail(reciver, emailSubject, message){
+    if(emailUsername){
+        let transporter = nodemailer.createTransport({
+            host: "smtp.gmail.com",
+            port: 587,
+            secure:false,
+            requireTLS:true,
+            auth:{
+                user: emailUsername,
+                pass: emailPassword
+            }
+        })
+        let mailOptions = {
+            from: emailUsername,
+            to: reciver,
+            subject:emailSubject,
+            text:message+" This is an automated message. Please do not respond"
+        }
+        transporter.sendMail(mailOptions, (error, info) => {
+            if (error){
+                log(error)
+                return console.log(error)
+            }
+            log(`sent mail to ${reciver}`)
+        })
+    }
+}
 function jsonRead(file){ //used to read json files 
     var temp = fs.readFileSync(file, "utf-8", (err) => {
         if(err){ log(err); console.log(err)}

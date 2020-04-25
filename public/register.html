@@ -84,6 +84,10 @@ socket.on("userCreated", () => {
     alert("user has been created. You might be prompted to log in")
     window.location.href="index.html"
 })
+socket.on("usernameExists", () => {
+        alert("This username already exists")
+        window.location.reload()
+    })
 function ValidateEmail(mail) 
 {
  if (/^\w+([\.-]?\w+)*@\w+([\.-]?\w+)*(\.\w{2,3})+$/.test(mail))

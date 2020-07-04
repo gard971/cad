@@ -1,0 +1,61 @@
+<title>Reset Password</title>
+<form id="form" hidden>
+    <label>Reset Password</label><br><br>
+    <input type="password" placeholder="New Password" id="password1"><br><br>
+    <input type="password" placeholder="Repeat Password" id="password2"><br><br>
+    <input type="submit" value="Reset!"><br><br>
+</form>
+
+<script src="/socket.io/socket.io.js"></script>
+<script
+  src="https://code.jquery.com/jquery-3.4.1.js"
+  integrity="sha256-WpOohJOqMqqyKL9FccASB9O0KwACQJpFTUBLTYOVvVU="
+  crossorigin="anonymous"></script>
+  <script src="script/md5.js"></script>
+<script>
+    var socket = io();
+    const queryString = window.location.search;
+    const urlParams = new URLSearchParams(queryString);
+    socket.emit("resetCheck", urlParams.get("id"))
+    socket.on("allowed",() => {
+        document.getElementById("form").hidden = false
+    })
+    $("#form").submit(e => {
+        e.preventDefault()
+        if($("#password1").val() == "" || $("#password2").val() == ""){
+            alert("please input a value")
+        }
+        else if($("#password1").val() != $("#password2").val()){
+            alert("passwords do not match")
+        }
+        else{
+            socket.emit("resetPassword", urlParams.get("id"), MD5($("#password1").val()))
+            console.log(MD5($("#password1").val()))
+        }
+    })
+    socket.on("passwordReset", () => {
+        alert("password has been reset")
+        window.location.href="index.html"
+    })
+</script>
+<script src="script/public.js"></script>
+<style>
+    #form{
+    position: absolute;
+    top: 35%;
+    left:43%;
+    text-align: center;
+    border-color: black;
+    border-style:solid;
+    border-width: 1%;
+    padding:3%;
+    background-color:turquoise;
+    border-radius: 20%;
+}
+::-webkit-input-placeholder{
+    text-align: center;
+}
+body{
+    background-color:royalblue;
+}
+</style>

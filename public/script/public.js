@@ -14,3 +14,6 @@ function check(needDeps){
     }
     socket.emit("check", localStorage.getItem("username"), localStorage.getItem("key"), needDeps)
 }
+socket.on("notAllowed", () => {
+    window.location.href="index.html"
+})

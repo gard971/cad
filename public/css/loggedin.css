@@ -333,3 +333,43 @@ input{
     overflow-wrap: break-word;
     overflow-x: hidden;
 }
+#icon911{
+    width:15%;
+}
+#icon911cont:hover{
+    cursor: pointer;
+}
+#cont911{
+    position: absolute;
+    left:30%;
+    padding:15%;
+    padding-right:25%;
+    border-color: grey;
+    border-style:solid;
+    border-width:10px;
+    border-radius:10%;
+    bottom:20%;
+    font-weight: 900;
+    font-size: 200%;
+    background-color:white;    
+}
+#texArea911{
+    position: absolute;
+    resize: none;
+    width: 30%;
+    height: 20%;
+    top:30%;
+    overflow: hidden;
+}
+#cont911 h2{
+    position: absolute;
+    top:5%;
+    left:45%;
+}
+#cont911 button{
+    position: absolute;
+    left:46%;
+}
+::placeholder{
+    text-align: center;
+}

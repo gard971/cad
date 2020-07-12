@@ -21,7 +21,7 @@ var callsignChange
             "BirthDate":$("#newCharacterBirthDate").val(),
             "Heigth":$("#newCharacterHeight").val(),
             "Build":selectValue,
-            "license":[],
+            "license":"",
             "warrants":[],
             "gunLicenses":[],
             "guns":[]
@@ -66,6 +66,14 @@ var callsignChange
         var name = [document.getElementById("firstnameInfo").innerHTML, document.getElementById("surnameInfo").innerHTML]
         socket.emit("newWarrant", name, $("#newWarrantTitle").val(), $("#newWarrantDes").val())
     })
+    $("#form911").submit(e => {
+        e.preventDefault()
+        socket.emit("new911", document.getElementById("texArea911").value)
+
+        alert("911 sent!")
+        document.getElementById("texArea911").value = ""
+        windowHandle("cont911", true)
+    })
     socket.on("deps", (array) => {
         var found = false
         if(sessionStorage.getItem("dep") == "debug"){
@@ -101,7 +109,13 @@ var callsignChange
             alert("you do not have access to this department")
             window.location.href="dep.html"
         }
-        if(found && sessionStorage.getItem("dep") == "LSPD" || sessionStorage.getItem("dep") == "LSCS" || sessionStorage.getItem("dep") == "LSHP"){
+        var isLEO
+        LEODeps.forEach(LEODep => {
+            if(sessionStorage.getItem("dep") == LEODep){
+                isLEO = true
+            }
+        })
+        if(found && isLEO){
             windowHandle("database", false)
             windowHandle("vehicleCont", false)
             windowHandle("comsCont", false)
@@ -291,6 +305,7 @@ var callsignChange
         windowHandle("selectCharacter", true)
         windowHandle('DMVIconCont', false)
         windowHandle("atfIconCont", false)
+        windowHandle("icon911cont", false)
     }
     function grabLicense(){
         socket.emit("grabLicense", sessionStorage.getItem("civname"), localStorage.getItem("username"))

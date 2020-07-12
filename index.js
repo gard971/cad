@@ -1,24 +1,26 @@
-//All code and design made by Gard. Gardi B#1070 on discord
 //VERSION A1(alpha version.)
 
-//////CONFIG will require a server restart before changes are put into effect///////
+//////CONFIG, will require a server restart before changes are put into effect///////
 
 var useLogs = true //change this variable to false to disable action logging like when admins adds/removes departments, will not affect error logging
 var serverRestarted = true //Change this to false to disable page reloading on server restart. Due to login security it is recomended to keep it on
-var port = 81; //only change this if you are running multiple services on the network, and you know what you are doing
-var emailUsername = "" //email used to send emails to people who has requested a department. Leave blank to disable mailing. This will also disable password recovery!!!. Only compatible with gmail atm. 
+var port = 80; //only change this if you are running multiple services on the network, and you know what you are doing
+var emailUsername = "" //email used to send emails to people who has requested a department. Leave blank to disable mailing. Only compatible with gmail atm
 var emailPassword = "" //Password used to send emails DO NOT USE YOUR NORMAL PASSWORD THIS WILL NOT WORK!! use an app password instead. watch this video on how to generate one: https://www.youtube.com/watch?v=ndxUgivCszE
 var saltRounds = 10 //used for salting passwords. If your server is running slow you can turn this down but it will reduce password security. Recomended and deafult value is 10
-var logCurrentUsers = true //set to false to not track amount of people on the website and log in console
+var logCurrentUsers = false //set to false to not track amount of people on the website and log in console
+var APIpassword = "test" //this is the password that you need to input when making API requests. This password and the one in discordBot.js needs to match or the discord bot will not work
+var LEODepartments = ["LSPD", "LSCS", "SAHP"] //all departments that has access to law enfocment databases. important to update for the fivem/discord integration. DO NOT include communications here!!
+//   ^^^ LEODepartments has to match both the Discrod role names and the department names in the cad itself. If not it will not work.
+//!!!^^^ WHEN UPDATING LEODepartments REMEMBER TO ALSO UPDATE LEODeps UNDER public\script\public.js!!!!!
 
-////////////////////
 
 //////DONT CHANGE ANYTHING BELOW THIS LINE UNLESS YOU KNOW WHAT YOU ARE DOING!!////////
 //Packages requierd for this app. Will not work without
 const fs = require("fs")
 const app = require("express")();
 const http = require("http").createServer(app).listen(port, () => {
-    console.log(`server listening on port ${port}, please use CTRL + C twice to stop server`);
+    console.log(`server listening on port ${port}, please use CTRL + C to stop server`);
     log("---------------");
     log("Server started");
     log("---------------")
@@ -696,6 +698,9 @@ io.on("connection", (socket) => {
             }
         })
     })
+    socket.on("new911", (msg) => {
+        io.sockets.emit("warn911", (msg))
+    })
 })
 process.on("SIGINT", () => {
     console.log("server shutting down")
@@ -729,7 +734,7 @@ function sendMail(reciver, emailSubject, message) {
         }
         transporter.sendMail(mailOptions, (error, info) => {
             if (error) {
-                log(error)
+                log(error, true)
                 return console.log(error)
             }
             log(`sent mail to ${reciver}`)
@@ -740,7 +745,7 @@ function sendMail(reciver, emailSubject, message) {
 function jsonRead(file) { //used to read json files 
     var temp = fs.readFileSync(file, "utf-8", (err) => {
         if (err) {
-            log(err);
+            log(err, true);
             console.log(err)
         }
     })
@@ -751,7 +756,7 @@ function jsonRead(file) { //used to read json files
 function jsonWrite(data, file) { //used to write to json files
     fs.writeFile(file, JSON.stringify(data), (err) => {
         if (err) {
-            log(err);
+            log(err, true);
             console.log(err)
         }
     })
@@ -775,11 +780,11 @@ function log(msg, isErr) { //main logging function
     if (fs.existsSync("data/logs/log.log") && useLogs || fs.existsSync("data/logs/log.log") && isErr) {
         fs.appendFileSync("data/logs/log.log", fullMsg + "\r\n")
     } else if (useLogs && fs.existsSync("data/logs") || isErr && fs.existsSync("data/logs")) {
-        fs.writeFileSync("data/logs/log.log", "[" + date.getDate() + "." + month + "." + date.getFullYear() + " @ " + date.getHours() + ":" + minutes + "] Log file created, to disable logging check the index.js file: config section \r\n")
+        fs.writeFileSync("data/logs/log.log", "[" + date.getDate() + "." + month + "." + date.getFullYear() + " @ " + date.getHours() + ":" + minutes + `] Log file created, to disable logging check the index.js file: config section. logging is currently: ${useLogs} \r\n`)
         fs.appendFileSync("data/logs/log.log", fullMsg + "\r\n")
     } else if (useLogs || isErr) {
         fs.mkdirSync("data/logs")
-        fs.writeFileSync("data/logs/log.log", "[" + date.getDate() + "." + month + "." + date.getFullYear() + " @ " + date.getHours() + ":" + minutes + "] Log file created, to disable logging check the index.js file: config section \r\n")
+        fs.writeFileSync("data/logs/log.log", "[" + date.getDate() + "." + month + "." + date.getFullYear() + " @ " + date.getHours() + ":" + minutes + `] Log file created, to disable logging check the index.js file: config section. logging is currently: ${useLogs} \r\n`)
         fs.appendFileSync("data/logs/log.log", fullMsg + "\r\n")
     }
 }
@@ -803,31 +808,47 @@ async function compare(plainPass, hashPass) {
         return "error"
     }
 }
-async function login(username, password, socket) {
+function login(username, password, socket, needDeps) {
     var found = false
     var useranmeFromDataBase
     var json = jsonRead("data/users.json")
     for (var i = 0; i < json.table.length; i++) {
         useranmeFromDataBase = json.table[i].username
-        await bcrypt.compare(password, json.table[i].password).then(
-            isCorrect => {
+        isCorrect = bcrypt.compareSync(password, json.table[i].password)
                 if (isCorrect && useranmeFromDataBase == username) {
                     var key = Math.random()
                     var newObject = {
                         "username": username,
                         "key": key
                     }
+                    if(socket){
                     approvedKeys.push(newObject)
                     socket.emit("passwordCorrect", username, key)
+                    }
+                    else if(needDeps){
+                        var array = [true, json.table[i].deps]
+                        return array
+                    }
+                    else{
+                        found = true
+                        return true
+                    }
                     found = true
                 }
-            })
     }
-    if (!found) {
+    if (!found && socket) {
         socket.emit("passwordWrong")
     }
+    if(!found && !socket){
+        return false;
+    }
+
 }
 //these lines exports the functions so that they can be used in other files. Mostly in the API
 module.exports.jsonRead = jsonRead;
 module.exports.jsonWrite = jsonWrite;
 module.exports.log = log;
+module.exports.login = login
+module.exports.LEODepartments = LEODepartments
+module.exports.saltRounds = saltRounds
+module.exports.APIPassword = APIpassword

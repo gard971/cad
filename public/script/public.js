@@ -1,4 +1,5 @@
-var allDepartments = ["LSPD", "civillian", "SAHP", "LSCS", "communications"]
+var allDepartments = ["LSPD", "civillian", "SAHP", "LSCS", "communications"] //All departments accecible in the cad. DO NOT INCLUDE ADMIN HERE!!
+var LEODeps = ["LSPD", "SAHP", "LSCS"] // COMMUNICATIONS/DISPATCH SHOULD NOT BE INCLUDED HERE!! WHEN INCLUDING NEW DEPARTMENTS HERE ALSO INCLUDE IT IN allDepartments above!!
 socket.on("eror", (msg) => {
     alert(msg)
     console.error("ERROR server returned a status of 500 with following message: '"+msg+"'")

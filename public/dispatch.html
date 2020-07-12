@@ -17,9 +17,20 @@
             <input placeholder="location" required><br>
             <select id="unitsNewCall" required>
             </select><br><br>
-            <button>ok!</button>
+            <button type="submit">ok!</button>
         </form>
     </container>
+</container>
+<button onclick="latest911void()">Open latest 911</button>
+<container id="alert911" hidden>
+    <img src="media/close.png" id="close" onclick="document.getElementById('alert911').hidden = true">
+    <h2>NEW 911!</h2>
+    <button onclick="view911()">Go to 911</button>
+</container>
+<container id="info911cont" hidden>
+    <img src="media/close.png" id="close" onclick="document.getElementById('info911cont').hidden = true">
+    <h2>911</h2>
+    <p id="info911">Somthing went wrong, could not get 911 info</p>
 </container>
 <script src="/socket.io/socket.io.js"></script>
 <script
@@ -30,6 +41,7 @@
     var socket = io();
     var fromUnitLoggedIn = false;
     var maxId;
+    var latest911
     $(function(){
         if(localStorage.getItem("username") && localStorage.getItem("key") && sessionStorage.getItem("dep")){
             socket.emit("check", localStorage.getItem("username"), localStorage.getItem("key"), true)
@@ -138,6 +150,12 @@
             }
         }
     })
+    socket.on("warn911", (msg) => {
+        var audio = new Audio("media/alarm.mp3")
+        audio.play()
+        document.getElementById("alert911").hidden = false
+        latest911 = msg
+    })
     function callsign(callsign){
         var value = document.getElementById("statusSelect")
         var selectValue = value.options[value.selectedIndex].value
@@ -162,6 +180,19 @@
         var value = document.getElementById(`addUnitSelect${callID}`)
         var selectValue = value.options[value.selectedIndex].id;
         socket.emit("unitAdded", selectValue, callID)
+    }
+    function view911(){
+        document.getElementById("alert911").hidden = true
+        document.getElementById("info911").innerHTML = latest911
+        document.getElementById("info911cont").hidden = false
+    }
+    function latest911void(){
+        if(!latest911){
+            alert("no 911 found")
+        }
+        else{
+            view911()
+        }
     }
 </script>
 <style>
@@ -254,6 +285,53 @@
     #addUnitCont{
         position: relative;
         left:67%;
+    }
+    #alert911{
+        color: red;
+        position: absolute;
+    left:35%;
+    padding:10%;
+    border-color: black;
+    border-style:solid;
+    border-width:10px;
+    border-radius:10%;
+    bottom:35%;
+    text-align: center;
+    font-weight: 900;
+    font-size: 200%;
+    background-color: grey;    
+    }
+    #alert911 h2{
+        position: absolute;
+        right: 18%;
+        top:5%;
+    }
+    #info911cont{
+        color: white;
+        position: absolute;
+    left:35%;
+    min-width: 40%;
+    max-width:40%;
+    min-height: 50%;
+    max-height: 50%;
+    border-color: black;
+    border-style:solid;
+    border-width:10px;
+    border-radius:10%;
+    bottom:35%;
+    text-align: center;
+    font-weight: 900;
+    font-size: 200%;
+    background-color: grey;  
+    max-width: 50%;
+    overflow-y: scroll;
+    overflow-x: hidden;
+    }
+    ::-webkit-scrollbar{
+        display:none;
+    }
+    body{
+        -ms-overflow-style: none;
     }
 </style>
 <script src="/script/public.js"></script>

@@ -1,0 +1,45 @@
+<title>forgot password</title>
+<form id="form">
+    <label>Forgot Password</label><br><br>
+    <input placeholder="Email" type="email" id="email"><br><br>
+    <input type="submit" value="Continue">
+</form>
+<script src="/socket.io/socket.io.js"></script>
+<script
+  src="https://code.jquery.com/jquery-3.4.1.js"
+  integrity="sha256-WpOohJOqMqqyKL9FccASB9O0KwACQJpFTUBLTYOVvVU="
+  crossorigin="anonymous"></script>
+<script>
+    var socket = io()
+    $("#form").submit(e => {
+        e.preventDefault()
+        socket.emit("forgotPassword", $("#email").val())
+    })
+    socket.on("EmailNotFound", () => {
+        alert("The email you supplied could not be found in the database")
+    })
+    socket.on("forgotStarted", () => {
+        alert("Further instructions has been sent to your email, please remember to check your spam folder.")
+    })
+</script>
+<script src="/script/public.js"></script>
+<style>
+#form{
+    position: absolute;
+    top: 35%;
+    left:43%;
+    text-align: center;
+    border-color: black;
+    border-style:solid;
+    border-width: 1%;
+    padding:3%;
+    background-color:turquoise;
+    border-radius: 20%;
+}
+::-webkit-input-placeholder{
+    text-align: center;
+}
+body{
+    background-color:royalblue;
+}
+</style>

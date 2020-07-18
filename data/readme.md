@@ -1,3 +1,0 @@
-DO NOT DELETE DATA FOLDER, THIS WILL MAKE APPLICATION CRASH!!
-You can delete any contents within data to wipe the respective data section
-Please do not delete the users.json file. This will render the register and login functions usless. If you wish to delete all users change the users.json file to the following content: {"table":[]} this is the default value in the users.json and it will be the same as no users in the database

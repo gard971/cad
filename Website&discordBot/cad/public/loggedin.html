@@ -1,0 +1,182 @@
+<body onunload="unload()">
+<img id="database" src="media/person.png" onclick="windowHandle('databaseCont', false)" hidden>
+<container id="databaseCont" hidden>
+    <img id="close" src="media/close.png" onclick="windowHandle('databaseCont', true)">
+    <p>Person Search</p>
+    <form id="databaseForm">
+        <input id="databaseFirstname" placeholder="FirstName"><br><br>
+        <input id="databaseSurname" placeholder="Surname"><br><br>
+        <input type="submit" value="search">
+    </form>
+</container><br>
+<container id="vehicleCont" onclick="windowHandle('carDataCont', false)" hidden>
+    <img id="vehicle" src="media/car.png">
+</container><br>
+<container id="carDataCont" hidden>
+    <img id="close" src="media/close.png" onclick="windowHandle('carDataCont', true)">
+    <p>Vehicle Search</p>
+    <form id="plateSearchForm">
+        <input id="plateNumber" placeholder="Plate Number"><br><br>
+        <input type="submit" value="search!">
+    </form>
+</container>
+<container id="comsCont" hidden>
+    <img id="coms" src="media/coms.png" onclick="windowHandle('comsPgCont', false)">
+</container>
+<container id="comsPgCont" hidden>
+    <p id="currentCall">Current Call: <container id="currentCallVar">None</container></p>
+    <input id="callsign" placeholder="callsign"><button onclick="callsign()">Update</button><br><br>
+    <img id="close" src="media/close.png" onclick="windowHandle('comsPgCont', true)">
+    <p id="DP">Dispatch</p>
+    <p id="currentCallsign">Current callsign: <container id="callsignParam">None</container></p>
+    <select id="statusSelect" onchange="callsign()">
+        <option id="10-7" value="10-7">10-7</option>
+        <option id="10-8" value="10-8">10-8</option>
+        <option id="10-6" value="10-6">10-6</option>
+    </select>
+</container>
+<container id="selectCharacter" hidden>
+    <p id="selectCharacterP">Select Character</p>
+    <select id="selectCharacterSelect">
+        <option disabled selected value="start">Select Character</option>
+    </select>
+    <button onclick="selectCharacter()">Go!</button>
+    <p>Or create new character <container id="createNewCharacterA" onclick="createNewCharacter()">here</container></p>
+</container>
+<container id="newCharacterCont" hidden>
+    <form id="newCharacterForm">
+        <h2>Create New Character</h1>
+        <input id="newCharacterFirstname" placeholder="Firstname" required><br>
+        <input id="newCharacterSurname" placeholder="Surname" required><br>
+        <label>BirthDate:</label><br><input id="newCharacterBirthDate" placeholder="born" type="date" required><br>
+        <input id="newCharacterHeight" placeholder="heigth" type="number" required><br>
+        <select id="newCharacterBuild" required>
+            <option disabled selected hidden value="start">build type</option>
+            <option value="fit">fit</option>
+            <option value="medium">medium</option>
+            <option value="large">large</option>
+            <option value="extra large">extra large</option>
+        </select>
+        <button type="submit">OK!</button>
+    </form>
+</container>
+</container>
+<container id="databaseInfo" hidden>
+    <img id="close" src="media/close.png" onclick="windowHandle('databaseInfo', true)">
+    <h2>Database Return:</h2>
+    <p>Firstname: <container id="firstnameInfo">undefined</container></p>
+    <p>Surname: <container id="surnameInfo">undefined</container></p>
+    <p>BirthDate: <container id="birthDateInfo">undefined</container></p>
+    <p>Build type: <container id="buildTypeInfo">undefined</container></p>
+    <p>License Status: <container id="licensesInfo">none</container></p>
+    <h4>Change License Status:</h4>
+    <select id="changeLicenseSelect" onchange="changeLicense(false)">
+        <option id="valid">Valid</option>
+        <option id="suspended">Suspended</option>
+        <option id="recalled">Recalled (To Be suspended when found)</option>
+    </select><br><br>
+    <container id="warrants">
+        <button id="addWarrantButton" onclick="windowHandle('databaseInfo', true); windowHandle('newWarrant', false)">+</button>
+        <button id="removeAllWarrants" onclick="removeAllWarrants()">remove all</button> 
+        <p>Warrants:</p>
+            <ul id="warrantsUL"></ul>
+    </container>
+    <container id="guns">
+        <p>Registered Guns:</p>
+        <ul id="gunsUL"></ul>
+    </container>
+</container>
+<container id="vehicleInfo" hidden>
+    <img id="close" src="media/close.png" onclick="windowHandle('vehicleInfo', true)">
+    <h2>Database Return</h2>
+    <p>LicensePlate: <container id="licensePlateInfo"></container></p>
+    <P>Color: <container id="colorInfo">undefined</container></p>
+    <p>Type: <container id="typeInfo">undefined</container></p>
+    <p>Doors: <container id="doorsInfo">undefined</container></p>
+    <p>Insurance Status: <container id="insuranceInfo">undefined</container></p>
+    <p>Registerd Owner: <container id="ownerInfo">undefined</container></p>
+</container>
+<container id="newVehicleCont" hidden>
+    <img id="close" src="media/close.png" onclick="windowHandle('newVehicleCont', true)">
+    <h2>Create New Vehicle</h2>
+    <form id="newVehicleForm">
+        <input id="newLicensePlate" placeholder="licensePlate"><br><br>
+        <input id="newColor" placeholder="color"><br><br>
+        <input id="newType" placeholder="type"><br><br>
+        <input id="newDoors" placeholder="doors" type="number"><br><br>
+        <select id="newInsuranceSelect">
+            <option hidden selected value="start">Insurance status</option>
+            <option value="Valid">Valid</option>
+            <option value="None">None</option>
+            <option value="Expired">Expired</option>
+        </select><br><br>
+        <input type="submit" value="go">
+    </form>
+</container>
+<container id="licenseHubCont" hidden>
+    <img src="/media/close.png" id="close" onclick="windowHandle('licenseHubCont', true)">
+    <p id="header">License Hub</p>
+    <p>Current License Status: <container id="licenseStatusVar">undefined</container></p>
+    <p>Change Status:</p>
+    <select id="licenseHubSelect" onchange="changeLicense(true)">
+        <option value="valid">Valid</option>
+        <option value="suspended">Suspended</option>
+        <option value="recalled">Recalled (to be suspended)</option>
+        <option value="none">none</option>
+    </select>
+</container>
+<container id="DMVIconCont" onclick="windowHandle('DMVCont'), false" hidden>
+    <img src="/media/dmv.png" id="DMVIcon">
+</container><br>
+<container id="DMVCont" hidden>
+    <img src="/media/close.png" id="close" onclick="windowHandle('DMVCont', true)">
+    <p>San Andreas DMV Hub</p>
+    <button onclick="windowHandle('DMVCont', true); windowHandle('newVehicleCont', false);">Register New Vehicle</button><br>
+    <button onclick="windowHandle('DMVCont', true); windowHandle('licenseHubCont', false); grabLicense(); check(false)">License Center</button>
+</container>
+<conatiner id="atfIconCont" onclick="windowHandle('atfCont', false)" hidden>
+    <img src="/media/atf.png" id="atfIcon">
+</conatiner><br><br>
+<container id="atfCont" hidden>
+    <img src="/media/close.png" id="close" onclick="windowHandle('atfCont', true)">
+    <p>ATF</p>
+    <button id="newGunButton" onclick="windowHandle('newGunCont', false); windowHandle('atfCont', true)">Register New Gun</button>
+    <button id="newGunLicensesButton">Licenses</button>
+</container>
+<container id="newGunCont" hidden>
+    <img src="/media/close.png" id="close" onclick="windowHandle('newGunCont', true)">
+    <input id="gunTypeInput" placeholder="Gun Type"><br>
+    <button onclick="registerNewGun()">Register</button>
+</container>
+<container id="newWarrant" hidden>
+    <img id="close" src="media/close.png" onclick="windowHandle('newWarrant', true)">
+    <h2>New warrant</h2>
+    <form id="addWarrantForm">
+        <input id="newWarrantTitle" placeholder="title"><br><br>
+        <input id="newWarrantDes" placeholder="description"><br><br>
+        <button type="submit">OK</button>
+    </form>
+</container>
+<container id="icon911cont" onclick="windowHandle('cont911', false)" hidden>
+    <img src="media/911.png" id="icon911">
+</container>
+<container id="cont911" hidden>
+    <img src="media/close.png" id="close" onclick="windowHandle('cont911', true)">
+    <h2>911</h2>
+    <form id="form911">
+        <textarea id="texArea911" placeholder="Emergency description (location, whats happening)"></textarea><br><br>
+        <button type="submit">send</button>
+    </form>
+</container>
+</body>
+<footer>
+  <img id="power" src="media/power.png" onclick="logout()">  
+</footer>
+<link rel="stylesheet" href="css/loggedin.css">
+<script src="/socket.io/socket.io.js"></script>
+<script
+  src="https://code.jquery.com/jquery-3.4.1.js"
+  integrity="sha256-WpOohJOqMqqyKL9FccASB9O0KwACQJpFTUBLTYOVvVU="
+  crossorigin="anonymous"></script>
+<script src="/script/loggedin.js"></script>
+<script src="/script/public.js"></script>

@@ -1,0 +1,337 @@
+<container id="unitsCont">
+    <h1>UNITS:</h1>
+    <ul id="units">
+    </ul><hr>
+</container>
+<container id="callsCont">
+    <h1>Calls:</h1> <button onclick="newCall()">+</button>
+        <ul id="calls">  
+        </ul>
+    </container>
+    <container id="newCall" hidden>
+        <p>Create New Call!</p>
+        <form id="newCallForm">
+            <img id="close" src="media/close.png" onclick="document.getElementById('newCall').hidden = true; document.getElementById('newCallForm').reset()">
+            <input id="code10" placeholder="10-code" required><br>
+            <input id="newCallDes" placeholder="description" required><br>
+            <input placeholder="location" required><br>
+            <select id="unitsNewCall" required>
+            </select><br><br>
+            <button type="submit">ok!</button>
+        </form>
+    </container>
+</container>
+<button onclick="latest911void()">Open latest 911</button>
+<container id="alert911" hidden>
+    <img src="media/close.png" id="close" onclick="document.getElementById('alert911').hidden = true">
+    <h2>NEW 911!</h2>
+    <button onclick="view911()">Go to 911</button>
+</container>
+<container id="info911cont" hidden>
+    <img src="media/close.png" id="close" onclick="document.getElementById('info911cont').hidden = true">
+    <h2>911</h2>
+    <p id="info911">Somthing went wrong, could not get 911 info</p>
+</container>
+<script src="/socket.io/socket.io.js"></script>
+<script
+  src="https://code.jquery.com/jquery-3.4.1.js"
+  integrity="sha256-WpOohJOqMqqyKL9FccASB9O0KwACQJpFTUBLTYOVvVU="
+  crossorigin="anonymous"></script>
+<script>
+    var socket = io();
+    var fromUnitLoggedIn = false;
+    var maxId;
+    var latest911
+    $(function(){
+        if(localStorage.getItem("username") && localStorage.getItem("key") && sessionStorage.getItem("dep")){
+            socket.emit("check", localStorage.getItem("username"), localStorage.getItem("key"), true)
+        }
+        else{
+            window.location.href="dep.html"
+        }
+    })
+    $("#newCallForm").submit((e) => {
+        e.preventDefault()
+        socket.emit("ammountCalls")
+
+    })
+    socket.on("notAllowed", () => {
+        window.location.href="index.html"
+    })
+    socket.on("deps", (array) => {
+        var found = false
+        for(var i = 0; i<array.length; i++){
+            if(array[i] == "communications"){
+                found = true
+            }
+        }
+        if(!found){
+            alert("you do not have access to this department!")
+            window.location.href="dep.html"
+        }
+        socket.emit("requestCalls")
+    })
+    socket.on("unitLoggedIn", (units) => {
+        $("#units").empty();
+        $("#unitsNewCall").empty()
+        for(var i = 0; i<units.length; i++){
+            var callsignString = "onchange=callsign('"+units[i].callsign+"')"
+            $("#units").append('<container id="'+units[i].callsign+'"><li id="unitCont">'+units[i].callsign+'<container id="status"><select id="statusSelect" '+callsignString+'><option disabled selected value="'+units[i].status+'">'+units[i].status+'</option><option value="10-8">10-8</option><option value="10-7">10-7</option><option value="10-6">10-6</option></select></container><container id="logout" onclick=logoutUnit("'+units[i].callsign+'")>Log Unit Out</container></li></container>')
+            $("#unitsNewCall").append("<option id="+units[i].callsign+">"+units[i].callsign+"</option>")
+            for(var b = 0; b<=maxId; b++){
+                var Abort = false;
+                var deployedUnits = sessionStorage.getItem(`call${b}.units`)
+                var deployedUnitsArray = deployedUnits.split(",")
+                for(var c = 0; c<deployedUnitsArray.length; c++){
+                    if(deployedUnitsArray[c] == units[i].callsign){
+                        Abort = true;
+                    }
+                }
+                if(Abort){
+                    abort = false;
+                    continue
+                }
+                else{
+                $(`#addUnitSelect${b}`).append(`<option id="${units[i].callsign}">${units[i].callsign}</option>`)
+                }
+            }
+        }
+        if(!fromUnitLoggedIn){
+            socket.emit("requestCalls")
+        }
+        else{
+             fromUnitLoggedIn = false
+        }
+    })
+    socket.on("calls", (ammount) => {
+        var value = document.getElementById("unitsNewCall")
+        var selectValue = value.options[value.selectedIndex].value
+        document.getElementById("newCall").hidden = true
+        socket.emit("callCreated", ammount, $("#code10").val(), $("#newCallDes").val(), selectValue)
+    })
+    socket.on("newCall", (call) => {
+        maxId++
+        var newMainUnit = call.mainUnit.join("<br>")
+        var call = '<container id="call'+call.callID+'"><li id="call"><container id="full10">10-code: <container id="code">'+call.Code10+'</container></container><container id="fullDes">Description:<container id="description">'+call.description+'</container></container><container id="fullCallStat"> Status: <container id="callStatusSelect"><select id="Call'+call.callID+'status" onchange="callStatus('+call.callID+')"><option value="none">none</option><option value="code 4">code 4</option></select> </container></container><container id="fullUnit"> First unit: <container id="callUnit">'+newMainUnit+'</container></container> <img id="deleteCall" src="media/delete.png" onclick="deleteCall('+call.callID+')"><container id="addUnitCont">Add Units To Call: <select id="addUnitSelect'+call.callID+'" onchange=addUnit("'+call.callID+'")><option id="start" selected hidden>Unit</select></container></li></container>'
+        socket.emit("requestCalls")
+        $("#calls").append(call)
+    })
+    socket.on("callDeleted", (call) =>{
+        var id = "call"+call
+        document.getElementById(id).parentNode.removeChild(document.getElementById(id))
+    })
+    socket.on("currentCalls", (calls) => {
+        $("#addUnitCont").empty()
+        $("#calls").empty()
+        for(var i = 0; i<calls.length; i++){
+            console.log(calls[i].mainUnit)
+            var newMainUnit = calls[i].mainUnit.join("<br>")
+            var temp = calls[i].mainUnit.toString()
+            var temp2 = temp.split("<li>")
+            var toStorage = temp2.toString().split("</li>")
+            sessionStorage.setItem(`call${calls[i].callID}.units`, toStorage)
+            var call = '<container id="call'+calls[i].callID+'"><li id="call">10-code: <container id="code">'+calls[i].Code10+'</container><container id="fullDes"> Description: <container id="description">'+calls[i].description+'</container></container><container id="fullCallStat"> Status: <container id="callStatusSelect"><select id="Call'+calls[i].callID+'status" onchange="callStatus('+calls[i].callID+')"><option disabled selected value="'+calls[i].status+'">'+calls[i].status+'</option><option value="none">none</option><option value="code 4">code 4</option></select> </container></container><container id="fullUnit"> units: <ul id="callUnit">'+newMainUnit+'</ul></container><img id="deleteCall" src="media/delete.png" onclick="deleteCall('+calls[i].callID+')"><container id="addUnitCont">Add Units To Call: <select id="addUnitSelect'+calls[i].callID+'" onchange=addUnit("'+calls[i].callID+'")><option id="start" selected hidden>Unit</select></container></li></container>'
+            $("#calls").append(call)      
+            if(i == calls.length -1){
+             maxId = calls[i].callID
+            }
+        }
+        fromUnitLoggedIn = true;
+        socket.emit("requestUnits")  
+        console.log("currentcalls")
+    })
+    socket.on("callStatusChanged", (id, calls, status) => {
+        for(var i = 0; i<calls.length; i++){
+            if("call"+id == document.getElementById("call"+calls[i].callID).id){
+                document.getElementById("call"+calls[i].callID).parentNode.removeChild(document.getElementById("call"+calls[i].callID))
+                var call = '<container id="call'+calls[i].callID+'"><li id="call">10-code: <container id="code">'+calls[i].Code10+'</container><container id="fullDes"> Description:<container id="description">'+calls[i].description+'</container></container><container id="fullCallStat"> Status: <container id="callStatusSelect"><select id="Call'+calls[i].callID+'status" onchange="callStatus('+calls[i].callID+')"><option value="'+status+'" disabled selected>'+status+'</option><option value="none">none</option><option value="code 4">code 4</option></select> </container></container><container id="fullUnit">units: <ul id="callUnit">'+calls[i].mainUnit+'</ul></container> <img id="deleteCall" src="media/delete.png" onclick="deleteCall('+calls[i].callID+')"><container id="addUnitCont">Add Units To Call: <select id="addUnitSelect" onchange=addUnit("'+calls[i].callID+'")><option id="start" selected hidden>Unit</select></container></li></container>'
+                socket.emit("requestUnits")
+                $("#calls").append(call)
+            }
+        }
+    })
+    socket.on("warn911", (msg) => {
+        var audio = new Audio("media/alarm.mp3")
+        audio.play()
+        document.getElementById("alert911").hidden = false
+        latest911 = msg
+    })
+    function callsign(callsign){
+        var value = document.getElementById("statusSelect")
+        var selectValue = value.options[value.selectedIndex].value
+        socket.emit("statusUpdate", selectValue, callsign)
+    }
+    function newCall(){
+        socket.emit("requestUnits")
+        document.getElementById("newCall").hidden = false
+    }
+    function deleteCall(ammount){
+        socket.emit("deleteCall", ammount)
+    }
+    function callStatus(call){
+        var value = document.getElementById("Call"+call+"status")
+        var selectValue = value.options[value.selectedIndex].value
+        socket.emit("callStatus", call, selectValue)
+    }
+    function logoutUnit(unit){
+        socket.emit("logoutUnit", unit)
+    }
+    function addUnit(callID){
+        var value = document.getElementById(`addUnitSelect${callID}`)
+        var selectValue = value.options[value.selectedIndex].id;
+        socket.emit("unitAdded", selectValue, callID)
+    }
+    function view911(){
+        document.getElementById("alert911").hidden = true
+        document.getElementById("info911").innerHTML = latest911
+        document.getElementById("info911cont").hidden = false
+    }
+    function latest911void(){
+        if(!latest911){
+            alert("no 911 found")
+        }
+        else{
+            view911()
+        }
+    }
+</script>
+<style>
+    html{
+        font-family: Verdana, Geneva, sans-serif;
+    }
+    #units{
+        list-style-type: none;
+    }
+    #status{
+        position: absolute;
+        left:40%;
+    }
+    #logout{
+        position: absolute;
+        left:85%;
+        cursor: pointer;
+    }
+    #calls{
+        list-style-type: none;
+    }
+    #call{
+        background-color:red;
+        padding:1%;
+        border-color:black;
+        border-style:solid;
+        border-width:1%;
+    }
+    #newCall{
+        text-align: center;
+        position: absolute;
+        left:40%;
+        top:35%;
+        background-color:grey;
+        padding:4%;
+        border-color:black;
+        border-style:solid;
+        border-width:10px;
+        border-radius:10%;
+    }
+    #close{
+        position: absolute;
+        width:5%;
+        bottom:90%;
+        right:90%;
+        cursor: pointer;
+
+    }
+    #code{
+        color:white;
+    }
+    #description{
+        color:white;
+    }
+    #callUnit{
+        color:white;
+        list-style:none;
+    }
+
+    #deleteCall{
+        width:1%;
+        cursor: pointer;
+        background:white;
+        position: absolute;
+        left:95%;
+    }
+    #unitCont{
+        color:white;
+        padding:1%;
+        border-color: black;
+        border-style: solid;
+        border-width: 1%;
+        background-color:green;
+    }
+    #fullDes{
+        position: absolute;
+        left:20%;
+    }
+    #fullCallStat{
+        position: absolute;
+        left:40%;
+    }
+    #fullUnit{
+        position: absolute;
+        left:55%;
+        overflow: scroll;
+        overflow-x:auto;
+        height: 4%;
+    }
+    #addUnitCont{
+        position: relative;
+        left:67%;
+    }
+    #alert911{
+        color: red;
+        position: absolute;
+    left:35%;
+    padding:10%;
+    border-color: black;
+    border-style:solid;
+    border-width:10px;
+    border-radius:10%;
+    bottom:35%;
+    text-align: center;
+    font-weight: 900;
+    font-size: 200%;
+    background-color: grey;    
+    }
+    #alert911 h2{
+        position: absolute;
+        right: 18%;
+        top:5%;
+    }
+    #info911cont{
+        color: white;
+        position: absolute;
+    left:35%;
+    min-width: 40%;
+    max-width:40%;
+    min-height: 50%;
+    max-height: 50%;
+    border-color: black;
+    border-style:solid;
+    border-width:10px;
+    border-radius:10%;
+    bottom:35%;
+    text-align: center;
+    font-weight: 900;
+    font-size: 200%;
+    background-color: grey;  
+    max-width: 50%;
+    overflow-y: scroll;
+    overflow-x: hidden;
+    }
+    ::-webkit-scrollbar{
+        display:none;
+    }
+    body{
+        -ms-overflow-style: none;
+    }
+</style>
+<script src="/script/public.js"></script>

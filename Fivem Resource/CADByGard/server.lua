@@ -51,9 +51,12 @@ AddEventHandler("performHTTPGET", function(params)
     PerformHttpRequest(params[2], function(errorCode, resultData, resultHeader)
         if(params[3] == "person") then 
         TriggerClientEvent("personReturn", params[1], resultData)
-        else if params[3] == "plate" then 
+        elseif params[3] == "plate" then 
             TriggerClientEvent("plateReturn", params[1], resultData)
+        elseif params[3] == "removeWarrant" then
+            if(resultData == "warants removed!") then 
+                TriggerClientEvent("WarrantsRemoved", params[1])
+            end
         end
-    end
     end)
-end)
+    end)

@@ -143,10 +143,11 @@ RageUI.CreateWhile(1.0, menu, nil, function()
                 if plate then 
                 local args = {
                     GetPlayerServerId(PlayerId()),
-                    "http://localhost/api?action=licensePlate&password=test&plate=" ..
+                    "http://localhost/api?action=licensePlate&password="..APIKey.."&plate=" ..
                         plate, "plate"
                 }
                 TriggerServerEvent("performHTTPGET", args)
+                RageUI.CloseAll()
             end
             end
         end)
@@ -204,12 +205,14 @@ AddEventHandler("personReturn", function(data)
             RageUI.CreateWhile(1.0, warrantMenu, nil, function()
                 RageUI.IsVisible(warrantMenu, true, true, true, function()
                     for i, warrant in pairs(parsedData.warrants) do
-                        RageUI.Button("Warrant name: " ..
-                                          parsedData.warrants[i].title ..
-                                          " Description: " ..
-                                          parsedData.warrants[i].description,
-                                      false)
+                        RageUI.Button("Warrant name: " ..parsedData.warrants[i].title .." Description: " ..parsedData.warrants[i].description,false)
                     end
+                    RageUI.Button("Remove warrants", "remove all warrants from suspect", true, function(Hovered, Active, Selected)
+                        if(Selected) then 
+                        local args = {GetPlayerServerId(PlayerId()), "http://localhost/api?action=removeWarrants&password="..APIKey.."&name="..parsedData.Firstname.."%20"..parsedData.Surname, "removeWarrant"}
+                        TriggerServerEvent("performHTTPGET", args)
+                        end
+                    end)
                 end)
             end)
         end
@@ -218,7 +221,14 @@ AddEventHandler("personReturn", function(data)
         RageUI.Visible(menuReturn, true)
     end
 end)
-
+RegisterNetEvent("WarrantsRemoved")
+AddEventHandler("WarrantsRemoved", function() 
+    local nameArray = string.split(name, " ", 99)
+    if #nameArray == 2 then
+        local args = {GetPlayerServerId(PlayerId()), "http://localhost/api?action=personSearch&password="..APIKey.."&name="..nameArray[1].."%20"..nameArray[2], "person"}
+        TriggerServerEvent("performHTTPGET", args)
+    end
+end)
 RageUI.CreateWhile(1.0, menuReturn, nil, function()
     RageUI.IsVisible(menuReturn, true, true, true, function()
         RageUI.Button("Name: " .. name, "Suspect Name", false)

@@ -82,7 +82,7 @@ function request(req, res) {
                 }
             }
         }
-    } else if (action = "register") {
+    } else if (action == "register") {
         if (!req.query.username || !req.query.password) {
             res.send("missing args for register")
             res.end()
@@ -110,6 +110,39 @@ function request(req, res) {
                 res.send("User Created!")
                 res.end()
                 return
+            }
+        }
+    }
+    else if(action == "removeWarrants"){
+        if(!req.query.password || !req.query.name){
+            res.send("missing args for removeWarrants")
+            res.end()
+            return
+        }
+        else{
+            if(req.query.password != main.APIPassword){
+                res.send("wrong api password")
+                res.end()
+                return
+            }
+            else{
+                var json = main.jsonRead("data/users.json")
+                for(var i = 0; i<json.table.length; i++){
+                    if(fs.existsSync(`data/${json.table[i].username}/civillians.json`)){
+                        var civs = main.jsonRead(`data/${json.table[i].username}/civillians.json`)
+                        for(var u = 0; u<civs.length; u++){
+                            if(civs[u].Firstname+" "+civs[u].Surname == req.query.name){
+                                civs[u].warrants.splice(0)
+                                main.jsonWrite(civs, `data/${json.table[i].username}/civillians.json`)
+                                res.send("warants removed!")
+                                res.end()
+                                return
+                            }
+                        }
+                    }
+                }
+                res.send("error")
+                res.end()
             }
         }
     }

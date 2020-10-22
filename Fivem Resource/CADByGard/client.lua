@@ -178,47 +178,34 @@ AddEventHandler("personReturn", function(data)
         Build = parsedData.Build
         License = parsedData.license
         count = 0
-        if makeSubMenu == true then
-            makeSubMenu = false
-            menuReturn:closable(false)
-            print("closable false")
-            Citizen.CreateThread(function()
-                while true do
-                    Citizen.Wait(1)
-                    if IsControlJustPressed(0, 177) then
-                        print("backspace pressed")
-                        RageUI.Visible(menuReturn, false)
-                        RageUI.Visible(warrantMenu, false)
-                        Citizen.Wait(100)
-                        RageUI.Visible(plateMenu, true)
-                        break
-                    end
-                end
-            end)
-        else
-            local temp = true
-            menuReturn:closable(true)
-        end
-        for _ in pairs(parsedData.warrants) do count = count + 1 end
-        if count > 0 then warrantsbool = true end
-        if count > 0 then
-            RageUI.CreateWhile(1.0, warrantMenu, nil, function()
-                RageUI.IsVisible(warrantMenu, true, true, true, function()
-                    for i, warrant in pairs(parsedData.warrants) do
-                        RageUI.Button("Warrant name: " ..parsedData.warrants[i].title .." Description: " ..parsedData.warrants[i].description,false)
-                    end
-                    RageUI.Button("Remove warrants", "remove all warrants from suspect", true, function(Hovered, Active, Selected)
-                        if(Selected) then 
-                        local args = {GetPlayerServerId(PlayerId()), "http://localhost/api?action=removeWarrants&password="..APIKey.."&name="..parsedData.Firstname.."%20"..parsedData.Surname, "removeWarrant"}
-                        TriggerServerEvent("performHTTPGET", args)
-                        end
-                    end)
-                end)
-            end)
-        end
-
         RageUI.Visible(menu, false)
-        RageUI.Visible(menuReturn, true)
+        TriggerEvent('chat:addMessage', {
+            multiline = false,
+            args = {"__________________________"}
+        })
+        TriggerEvent('chat:addMessage', {
+            multiline = false,
+            args = {"[name] ".. name}
+        })
+        TriggerEvent('chat:addMessage', {
+            multiline = false,
+            args = {"[DOB] ".. DOB}
+        })
+        TriggerEvent('chat:addMessage', {
+            multiline = false,
+            args = {"[Height] ".. Height}
+        })
+        TriggerEvent('chat:addMessage', {
+            multiline = false,
+            args = {"[Build] ".. Build}
+        })
+        TriggerEvent('chat:addMessage', {
+            multiline = false,
+            args = {"[License Status] ".. License}
+        })   TriggerEvent('chat:addMessage', {
+            multiline = false,
+            args = {"__________________________"}
+        })
     end
 end)
 RegisterNetEvent("WarrantsRemoved")
@@ -251,34 +238,13 @@ AddEventHandler("plateReturn", function(data)
         print("data == nil")
         TriggerEvent("chat:addMessage", {args = {data}})
     else
-        print("data != nill")
-        plateMenu = RageUI.CreateMenu("Plate Return", "Plate Return")
-        RageUI.CreateWhile(1.0, plateMenu, nil, function()
-            RageUI.IsVisible(plateMenu, true, true, true, function()
-                RageUI.Button("plate: " .. parsedData.plate, false)
-                RageUI.Button("color: " .. parsedData.color, false)
-                RageUI.Button("type: " .. parsedData.type, false)
-                RageUI.Button("RO: " .. parsedData.registerdOwner, "", true,
-                              function(Hovered, Active, Selected)
-                    if Selected then
-                        local nameArray =
-                            string.split(parsedData.registerdOwner, " ", 99)
-                        local args = {
-                            GetPlayerServerId(PlayerId()),
-                            "http://localhost/api?action=personSearch&password=" ..
-                                APIKey .. "&name=" .. nameArray[1] .. "%20" ..
-                                nameArray[2], "person"
-                        }
-                        TriggerServerEvent("performHTTPGET", args)
-                        RageUI.Visible(plateMenu, false)
-                        makeSubMenu = true
-                    end
-                end)
-            end)
-        end)
-        print("visible")
+        TriggerEvent("chat:addMessage", {args = {"__________________________"}})
+        TriggerEvent("chat:addMessage", {args = {"[Plate] ".. parsedData.plate}})
+        TriggerEvent("chat:addMessage", {args = {"[color] ".. parsedData.color}})
+        TriggerEvent("chat:addMessage", {args = {"[Type] ".. parsedData.type}})
+        TriggerEvent("chat:addMessage", {args = {"[RO] ".. parsedData.registerdOwner}})
+        TriggerEvent("chat:addMessage", {args = {"__________________________"}})
         RageUI.Visible(menu, false)
-        RageUI.Visible(plateMenu, true)
     end
 end)
 function changePersonReturn(object) end

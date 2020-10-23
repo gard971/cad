@@ -229,6 +229,29 @@ bot.on("message", msg => {
                     })
                 }
                 break;
+                case "removeWarrant": 
+                var found = false
+                try{
+                main.LEODepartments.forEach(LEODep => {
+                    if(msg.member.roles.cache.find(r => r.name == LEODep)){
+                        found = true
+                    }
+                })
+            }
+            catch{
+                msg.channel.send("Could not check you roles.(make sure you are not DMing me)")
+            }
+                if(found){
+                    http.get(`http://localhost/api?action=removeWarrants&name=${args[0]}%20${args[1]}`, (res) => {
+                        const {
+                            statusCode
+                        } = res
+                        if(statusCode != 200){
+                            console.log("http requiest failed")
+                        }
+                    })
+                }
+                break;
         }
     }
 })

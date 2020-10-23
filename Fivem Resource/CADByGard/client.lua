@@ -179,33 +179,13 @@ AddEventHandler("personReturn", function(data)
         License = parsedData.license
         count = 0
         RageUI.Visible(menu, false)
-        TriggerEvent('chat:addMessage', {
-            multiline = false,
-            args = {"__________________________"}
-        })
-        TriggerEvent('chat:addMessage', {
-            multiline = false,
-            args = {"[name] ".. name}
-        })
-        TriggerEvent('chat:addMessage', {
-            multiline = false,
-            args = {"[DOB] ".. DOB}
-        })
-        TriggerEvent('chat:addMessage', {
-            multiline = false,
-            args = {"[Height] ".. Height}
-        })
-        TriggerEvent('chat:addMessage', {
-            multiline = false,
-            args = {"[Build] ".. Build}
-        })
-        TriggerEvent('chat:addMessage', {
-            multiline = false,
-            args = {"[License Status] ".. License}
-        })   TriggerEvent('chat:addMessage', {
-            multiline = false,
-            args = {"__________________________"}
-        })
+        TriggerEvent('chat:addMessage', {args = {"__________________________"}})
+        TriggerEvent('chat:addMessage', {args = {"[name] ".. name}})
+        TriggerEvent('chat:addMessage', {args = {"[DOB] ".. DOB}})
+        TriggerEvent('chat:addMessage', {args = {"[Height] ".. Height}})
+        TriggerEvent('chat:addMessage', {args = {"[Build] ".. Build}})
+        TriggerEvent('chat:addMessage', {args = {"[License Status] ".. License}})  
+        TriggerEvent('chat:addMessage', {args = {"__________________________"}})
     end
 end)
 RegisterNetEvent("WarrantsRemoved")

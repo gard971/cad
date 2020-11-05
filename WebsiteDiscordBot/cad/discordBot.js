@@ -1,6 +1,7 @@
 //config:
 
 var password = "Change-me"
+
 var prefix = "!"
 var APIPassword = "test"
 
@@ -25,6 +26,12 @@ bot.on("ready", () => {
 })
 
 bot.on("message", msg => {
+    try{
+        msg.delete()
+    }
+    catch{
+        console.log("could not delete message. Probably did not have perms")
+    }
     var prefixInput = msg.content.substring(0, prefix.length)
     if (prefixInput == prefix) {
         var args = msg.content.substring(prefix.length).split(" ")
@@ -36,16 +43,16 @@ bot.on("message", msg => {
                 if (!args[0] || !args[1]) {
                     msg.channel.send(`missing arguments. Usage: ${prefix}PersonSearch firstname lastname`)
                 } else {
-                    try{
-                    main.LEODepartments.forEach(LEODep => {
-                        if (msg.member.roles.cache.find(r => r.name == LEODep)){
-                            found = true
-                        }
-                    })
-                }catch{
-                    msg.channel.send("Could not check you roles.(make sure you are not DMing me)")
-                    break;
-                }
+                    try {
+                        main.LEODepartments.forEach(LEODep => {
+                            if (msg.member.roles.cache.find(r => r.name == LEODep)) {
+                                found = true
+                            }
+                        })
+                    } catch {
+                        msg.channel.send("Could not check you roles.(make sure you are not DMing me)")
+                        break;
+                    }
                     if (found) {
                         http.get(`http://localhost/api?action=personSearch&password=${APIPassword}&name=${args[0]}%20${args[1]}`, res => {
                             const {
@@ -91,7 +98,6 @@ bot.on("message", msg => {
                                             })
                                         })
                                     } catch (e) {
-                                        console.log(e)
                                         msg.channel.send(rawData).then(msgFromBot => {
                                             msgFromBot.delete({
                                                 timeout: 9000
@@ -130,16 +136,15 @@ bot.on("message", msg => {
                     })
                 } else {
                     var found = false
-                    try{
-                    main.LEODepartments.forEach(LEODep => {
-                        if(msg.member.roles.cache.find(r => r.name == LEODep)){
-                            found = true
-                        }
-                    })
-                }
-                catch{
-                    msg.channel.send("Could not check you roles.(make sure you are not DMing me)")
-                }
+                    try {
+                        main.LEODepartments.forEach(LEODep => {
+                            if (msg.member.roles.cache.find(r => r.name == LEODep)) {
+                                found = true
+                            }
+                        })
+                    } catch {
+                        msg.channel.send("Could not check you roles.(make sure you are not DMing me)")
+                    }
                     if (found) {
                         found = true
                         http.get(`http://localhost/api?action=licensePlate&password=${APIPassword}&plate=${args[0]}`, res => {
@@ -194,16 +199,16 @@ bot.on("message", msg => {
                                 })
                             }
                         })
-                    }
-                    else{
+                    } else {
                         msg.reply("you do not have access to any LEO department").then(msgFromBot => {
-                            msgFromBot.delete({timeout: 9000})
+                            msgFromBot.delete({
+                                timeout: 9000
+                            })
                         })
                     }
                 }
                 break;
             case "Register":
-                msg.delete()
                 if (!args[0] || !args[1] || !args[2]) {
                     msg.channel.send(`Missing args. Usage: ${prefix}register username password confirmPassword`)
                 } else {
@@ -226,6 +231,48 @@ bot.on("message", msg => {
                                 })
                             })
                         }
+                    })
+                }
+                break;
+            case "removeWarrant":
+                var found = false
+                try {
+                    main.LEODepartments.forEach(LEODep => {
+                        if (msg.member.roles.cache.find(r => r.name == LEODep)) {
+                            found = true
+                        }
+                    })
+                } catch {
+                    msg.channel.send("Could not check you roles.(make sure you are not DMing me)")
+                    break;
+                }
+                if (found) {
+                    if (args[0] && args[1]) {
+                        http.get(`http://localhost/api?action=removeWarrants&name=${args[0]}%20${args[1]}&password=${APIPassword}`, (res) => {
+                            const {
+                                statusCode
+                            } = res
+                            if (statusCode != 200) {
+                                console.log("http request failed")
+                            } else {
+                                let rawData = ""
+                                res.on("data", chunk => {
+                                    rawData += chunk
+                                })
+                                res.on("end", () => {
+                                    msg.channel.send(rawData).then(msgFromBot => {
+                                        msgFromBot.delete({
+                                            timeout: 9000
+                                        })
+                                    })
+                                })
+                            }
+                        })
+                    }
+                }
+                else{
+                    msg.channel.send("You do not have permission to access that command!").then(msgFromBot => {
+                        msgFromBot.delete({timeout: 9000})
                     })
                 }
                 break;

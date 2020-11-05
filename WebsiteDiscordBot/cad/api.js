@@ -141,7 +141,7 @@ function request(req, res) {
                         }
                     }
                 }
-                res.send("error")
+                res.send("could not find character")
                 res.end()
             }
         }

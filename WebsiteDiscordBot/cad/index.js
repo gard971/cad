@@ -68,6 +68,8 @@ io.on("connection", (socket) => {
     })
     //listens for register requests and checks if user allready exists then creates a new user if not
     socket.on("register", (username, nonHashPassword) => {
+        var completed = false
+        if(!completed){
         hash(nonHashPassword).then(function (password) {
             if (password == false) {
                 socket.emit("eror", "500 internal server error, Server could not secure your password properly and therfore it was not stored on the server. ERR:HASHERR")
@@ -90,8 +92,10 @@ io.on("connection", (socket) => {
                 json.table.push(newObject)
                 jsonWrite(json, "data/users.json")
                 socket.emit("userCreated")
+                completed = true;
             }
         })
+    }
     })
     //checks if the client has logged in before accesing logged in pages and redirects to the login page if not
     socket.on("check", (username, key, needDeps) => {
@@ -743,6 +747,7 @@ function sendMail(reciver, emailSubject, message) {
 }
 
 function jsonRead(file) { //used to read json files 
+    try{
     var temp = fs.readFileSync(file, "utf-8", (err) => {
         if (err) {
             log(err, true);
@@ -751,6 +756,10 @@ function jsonRead(file) { //used to read json files
     })
     var json = JSON.parse(temp)
     return json;
+    }
+    catch{
+        return false;
+    }
 }
 
 function jsonWrite(data, file) { //used to write to json files

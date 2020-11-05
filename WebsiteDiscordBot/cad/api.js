@@ -127,12 +127,11 @@ function request(req, res) {
             }
             else{
                 var json = main.jsonRead("data/users.json")
-                var civInfo = req.query.name.split(" ")
                 for(var i = 0; i<json.table.length; i++){
                     if(fs.existsSync(`data/${json.table[i].username}/civillians.json`)){
                         var civs = main.jsonRead(`data/${json.table[i].username}/civillians.json`)
                         for(var u = 0; u<civs.length; u++){
-                            if(civs[u].Firstname+" "+civs[u].Surname == civInfo[0]+" "+civInfo[1]){
+                            if(civs[u].Firstname+" "+civs[u].Surname == req.query.name){
                                 civs[u].warrants.splice(0)
                                 main.jsonWrite(civs, `data/${json.table[i].username}/civillians.json`)
                                 res.send("warants removed!")
@@ -142,7 +141,7 @@ function request(req, res) {
                         }
                     }
                 }
-                res.send("error")
+                res.send("could not find character")
                 res.end()
             }
         }

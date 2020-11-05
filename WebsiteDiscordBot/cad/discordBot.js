@@ -228,26 +228,40 @@ bot.on("message", msg => {
                         }
                     })
                 }
-                break;
-                case "removeWarrant": 
+            break;
+            case "removeWarrant": 
+                msg.channel.send("removeWarrant")
                 var found = false
                 try{
-                main.LEODepartments.forEach(LEODep => {
-                    if(msg.member.roles.cache.find(r => r.name == LEODep)){
+                    main.LEODepartments.forEach(LEODep => {
+                        if(msg.member.roles.cache.find(r => r.name == LEODep)){
                         found = true
-                    }
-                })
-            }
+                        }
+                    })
+                }
             catch{
                 msg.channel.send("Could not check you roles.(make sure you are not DMing me)")
             }
                 if(found){
-                    http.get(`http://localhost/api?action=removeWarrants&name=${args[0]}%20${args[1]}`, (res) => {
+                    console.log("found")
+                    if(!args[0] || !args[1])
+                    http.get(`http://localhost/api?action=removeWarrants&name=${args[0]}%20${args[1]}&password=${APIPassword}`, (res) => {
                         const {
                             statusCode
                         } = res
                         if(statusCode != 200){
-                            console.log("http requiest failed")
+                            console.log("http request failed")
+                        }
+                        else{
+                            let rawData = ""
+                            res.on("data", chunk => {
+                                rawData += chunk
+                            })
+                            res.on("end", () => {
+                                msg.channel.send(rawData).then(msgFromBot => {
+                                    msgFromBot.delete({timeout: 9000})
+                                })
+                            })
                         }
                     })
                 }

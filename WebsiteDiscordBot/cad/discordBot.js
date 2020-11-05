@@ -1,6 +1,7 @@
 //config:
 
-var password = "NjY1NTMwMDQ3NTExMTM0MjE5.Xhm9KA.W8WYgJrwY1cGDgwbkqY16ATyPys"
+var password = "Change-me"
+
 var prefix = "!"
 var APIPassword = "test"
 

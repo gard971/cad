@@ -856,8 +856,8 @@ function login(username, password, socket, needDeps) {
 //database creation 
 (function () {
     var allFiles = [
-        ["requests.json", '{"table":[]}'],
-        ["users.json", '{"table":[]}']
+        ["requests.json", "{\"table\":[]}"],
+        ["users.json", "{\"table\":[]}"]
     ]
     var statusSent = false;
     if (!fs.existsSync("data/")) {
@@ -871,7 +871,7 @@ function login(username, password, socket, needDeps) {
                 console.log("\x1b[33m%s\x1b[0m", "Opretter Database.....")
                 statusSent = true
             }
-            jsonWrite(`data/${file[0]}`, JSON.parse(file[1]))
+            jsonWrite(file[1], `data/${file[0]}`)
         }
     })
     if (statusSent) {

@@ -853,6 +853,32 @@ function login(username, password, socket, needDeps) {
     }
 
 }
+//database creation 
+(function () {
+    var allFiles = [
+        ["requests.json", '{"table":[]}'],
+        ["users.json", '{"table":[]}']
+    ]
+    var statusSent = false;
+    if (!fs.existsSync("data/")) {
+        fs.mkdirSync("data/")
+        console.log("\x1b[33m%s\x1b[0m", "Opretter Database.....")
+        statusSent = true;
+    }
+    allFiles.forEach(file => {
+        if (!fs.existsSync(`data/${file[0]}`)) {
+            if (!statusSent) {
+                console.log("\x1b[33m%s\x1b[0m", "Opretter Database.....")
+                statusSent = true
+            }
+            jsonWrite(`data/${file[0]}`, JSON.parse(file[1]))
+        }
+    })
+    if (statusSent) {
+        console.log("\x1b[32m%s\x1b[0m", "Database Oprettet!")
+    }
+})()
+
 //these lines exports the functions so that they can be used in other files. Mostly in the API
 module.exports.jsonRead = jsonRead;
 module.exports.jsonWrite = jsonWrite;

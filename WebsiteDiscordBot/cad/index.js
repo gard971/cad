@@ -16,13 +16,6 @@ const dotenv = require("dotenv").config() //loads all settings into process.env
 //Packages requierd for this app. Will not work without
 const fs = require("fs")
 const app = require("express")();
-const http = require("http").createServer(app).listen(port, () => {
-    console.log(`server listening on port ${port}, please use CTRL + C to stop server`);
-    log("---------------");
-    log("Server started");
-    log("---------------")
-})
-const io = require("socket.io")(http)
 const path = require("path")
 const express = require("express")
 const nodemailer = require("nodemailer")
@@ -42,10 +35,9 @@ app.use("/api", (req, res) => { //used when the api is called and passes the req
 })
 dotEnvCheck()
 //ALL SETTINGS HAVE BEEN MOVED TO THE .env FILE!!!
-
 var useLogs = process.env.USE_LOGS 
 var serverRestarted = process.env.RESTART_SERVER
-var port = 80; 
+var port = process.env.PORT; 
 var emailUsername = process.env.EMAIL_USERNAME 
 var emailPassword = process.env.EMAIL_PASSWORD 
 var saltRounds = process.env.SALT_ROUNDS 
@@ -53,6 +45,14 @@ var logCurrentUsers = process.env.LOG_ONLINE_USERS
 var APIpassword = process.env.API_PASSWORD
 var LEODepartments = process.env.LEO_DEPARTMENTS.split(",") 
 app.use(express.static(path.join(__dirname, "public")))
+
+const http = require("http").createServer(app).listen(port, () => {
+    console.log(`server listening on port ${port}, please use CTRL + C to stop server`);
+    log("---------------");
+    log("Server started");
+    log("---------------")
+})
+const io = require("socket.io")(http)
 
 //listening for conections
 io.on("connection", (socket) => {

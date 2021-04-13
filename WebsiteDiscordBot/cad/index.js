@@ -1,21 +1,18 @@
-//VERSION A1(alpha version.)
+/*
+Alpha version (A1)
+Author: Gard S
+Discord: Gardi B #1070
 
-//////CONFIG, will require a server restart before changes are put into effect///////
+ALL settings have been moved to ".env" or ".envExample" file. More instructions within the file
 
-var useLogs = true //change this variable to false to disable action logging like when admins adds/removes departments, will not affect error logging
-var serverRestarted = true //Change this to false to disable page reloading on server restart. Due to login security it is recomended to keep it on
-var port = 80; //only change this if you are running multiple services on the network, and you know what you are doing
-var emailUsername = "" //email used to send emails to people who has requested a department. Leave blank to disable mailing. Only compatible with gmail atm
-var emailPassword = "" //Password used to send emails DO NOT USE YOUR NORMAL PASSWORD THIS WILL NOT WORK!! use an app password instead. watch this video on how to generate one: https://www.youtube.com/watch?v=ndxUgivCszE
-var saltRounds = 10 //used for salting passwords. If your server is running slow you can turn this down but it will reduce password security. Recomended and deafult value is 10
-var logCurrentUsers = false //set to false to not track amount of people on the website and log in console
-var APIpassword = "test" //this is the password that you need to input when making API requests. This password and the one in discordBot.js needs to match or the discord bot will not work
-var LEODepartments = ["LSPD", "LSCS", "SAHP"] //all departments that has access to law enfocment databases. important to update for the fivem/discord integration. DO NOT include communications here!!
-//   ^^^ LEODepartments has to match both the Discrod role names and the department names in the cad itself. If not it will not work.
-//!!!^^^ WHEN UPDATING LEODepartments REMEMBER TO ALSO UPDATE LEODeps UNDER public\script\public.js!!!!!
+DO NOT change anything below this line. It might break the application
+*/
 
 
-//////DONT CHANGE ANYTHING BELOW THIS LINE UNLESS YOU KNOW WHAT YOU ARE DOING!!////////
+
+const dotenv = require("dotenv").config() //loads all settings into process.env
+
+
 //Packages requierd for this app. Will not work without
 const fs = require("fs")
 const app = require("express")();
@@ -43,8 +40,20 @@ var currentUsers = 0;
 app.use("/api", (req, res) => { //used when the api is called and passes the request on to the api. Check out the api code in the 'api.js' file
     api.request(req, res)
 })
-//serving all the client files to client browser
+dotEnvCheck()
+//ALL SETTINGS HAVE BEEN MOVED TO THE .env FILE!!!
+
+var useLogs = process.env.USE_LOGS 
+var serverRestarted = process.env.RESTART_SERVER
+var port = 80; 
+var emailUsername = process.env.EMAIL_USERNAME 
+var emailPassword = process.env.EMAIL_PASSWORD 
+var saltRounds = process.env.SALT_ROUNDS 
+var logCurrentUsers = process.env.LOG_ONLINE_USERS 
+var APIpassword = process.env.API_PASSWORD
+var LEODepartments = process.env.LEO_DEPARTMENTS.split(",") 
 app.use(express.static(path.join(__dirname, "public")))
+
 //listening for conections
 io.on("connection", (socket) => {
     //refreshes all clients on server restart if 'serverRestarted' == true
@@ -878,6 +887,13 @@ function login(username, password, socket, needDeps) {
         console.log("\x1b[32m%s\x1b[0m", "Database Oprettet!")
     }
 })()
+function dotEnvCheck(){
+    if(!fs.existsSync(".env")){
+        console.log("\x1b[31m%s\x1b[0m", ".env file with settings do not exist. Please make sure to go through the file \".envExample\" and make sure the settings are correct, then rename the file to \".env\"")
+        log(".env file with settings do not exist. Please make sure to go through the file \".envExample\" and make sure the settings are correct, then rename the file to \".env\"", true)
+        process.exit(1)
+    }
+}
 
 //these lines exports the functions so that they can be used in other files. Mostly in the API
 module.exports.jsonRead = jsonRead;

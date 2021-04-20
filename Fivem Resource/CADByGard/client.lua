@@ -1,3 +1,4 @@
+--apikey used to access the cad via http requests. Needs to match what you have set as APIkey in the .env file!
 local APIKey = "test"
 
 local lastBlip = false

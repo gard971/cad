@@ -37,10 +37,10 @@ dotEnvCheck()
 //ALL SETTINGS HAVE BEEN MOVED TO THE .env FILE!!!
 var useLogs = process.env.USE_LOGS 
 var serverRestarted = process.env.RESTART_SERVER
-var port = process.env.PORT; 
+var port = +process.env.PORT; 
 var emailUsername = process.env.EMAIL_USERNAME 
 var emailPassword = process.env.EMAIL_PASSWORD 
-var saltRounds = process.env.SALT_ROUNDS 
+var saltRounds = +process.env.SALT_ROUNDS 
 var logCurrentUsers = process.env.LOG_ONLINE_USERS 
 var APIpassword = process.env.API_PASSWORD
 var LEODepartments = process.env.LEO_DEPARTMENTS.split(",") 
@@ -808,6 +808,7 @@ function log(msg, isErr) { //main logging function
 }
 async function hash(password) {
     try {
+        
         var hashPassword = await bcrypt.hash(password, saltRounds)
         return hashPassword.toString();
     } catch (error) {
@@ -865,8 +866,8 @@ function login(username, password, socket, needDeps) {
 //database creation 
 (function () {
     var allFiles = [
-        ["requests.json", "{\"table\":[]}"],
-        ["users.json", "{\"table\":[]}"]
+        ["requests.json", {"table":[]}],
+        ["users.json", {"table":[]}]
     ]
     var statusSent = false;
     if (!fs.existsSync("data/")) {

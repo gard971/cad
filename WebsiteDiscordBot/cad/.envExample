@@ -1,22 +1,31 @@
 #RENAME THIS FILE TO .env NOT .envExample. Otherwise it wont work
 #all settings: 
 
-USE_LOGS=true #log events like admin added department to user. Will not affect errors
+#log events like admin added department to user. Will not affect errors
+USE_LOGS=true 
 
-REFRESH_BROWSER=true #refresh browers when server restarted. For saftey reasons please leave enabled
+#refresh browers when server restarted. For saftey reasons please leave enabled
+REFRESH_BROWSER=true 
 
-PORT=80 #What port the server will listen to. Recomended 3000 for testing, 80 for deployment
+#What port the server will listen to. Recomended 3000 for testing, 80 for deployment
+PORT=80 
 
-EMAIL_USERNAME=test@test.com #email username
+#email username
+EMAIL_USERNAME=test@test.com 
 
-EMAIL_PASSWORD=abc123 #Password used to send emails DO NOT USE YOUR NORMAL PASSWORD THIS WILL NOT WORK!! use an app password instead. watch this video on how to generate one: https://www.youtube.com/watch?v=ndxUgivCszE
+#Password used to send emails DO NOT USE YOUR NORMAL PASSWORD THIS WILL NOT WORK!! use an app password instead. watch this video on how to generate one: https://www.youtube.com/watch?v=ndxUgivCszE
+EMAIL_PASSWORD=abc123 
 
-SALT_ROUNDS=10 #used for hashing and salting passwords. Recomended 10
+#used for hashing and salting passwords. Recomended 10
+SALT_ROUNDS=10
+#set to false to not track amount of people on the website and log in console 
 
-LOG_ONLINE_USERS=false #set to false to not track amount of people on the website and log in console
+LOG_ONLINE_USERS=false 
 
-API_PASSWORD=test #this is the password that you need to input when making API requests. This password and the one in discordBot.js needs to match or the discord bot will not work
+#this is the password that you need to input when making API requests. This password and the one in discordBot.js needs to match or the discord bot will not work
+API_PASSWORD=test 
 
-LEO_DEPARTMENTS=LSPD,LSCS,SAHP #commaseperated list of all LEO departments. important to update for the fivem/discord integration. DO NOT include communications here!!
+#commaseperated list of all LEO departments. important to update for the fivem/discord integration. DO NOT include communications here!!
+LEO_DEPARTMENTS=LSPD,LSCS,SAHP 
 #   ^ LEODepartments has to match both the Discrod role names and the department names in the cad itself. If not it will not work.^
 # ^^ WHEN UPDATING LEODepartments REMEMBER TO ALSO UPDATE LEODeps UNDER public\script\public.js!!!!!

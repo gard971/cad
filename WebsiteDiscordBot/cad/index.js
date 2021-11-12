@@ -44,6 +44,7 @@ var saltRounds = +process.env.SALT_ROUNDS
 var logCurrentUsers = process.env.LOG_ONLINE_USERS 
 var APIpassword = process.env.API_PASSWORD
 var LEODepartments = process.env.LEO_DEPARTMENTS.split(",") 
+
 app.use(express.static(path.join(__dirname, "public")))
 
 const http = require("http").createServer(app).listen(port, () => {

@@ -2,6 +2,17 @@
     width:100%;
     text-align:center;
 }
+.centerX{
+    position: relative; 
+    left: 50%;
+    transform: translateX(-50%);
+}
+.marginCenterX{
+    position: relative;
+    display: block;
+    margin:0 auto;
+    left: 50%;
+}
 #newCharacterBuild{
     width:100%;
     text-align: center;
@@ -372,4 +383,24 @@ input{
 }
 ::placeholder{
     text-align: center;
+}
+@media(max-height: 800px){
+    #databaseInfo{
+        padding:3%;
+    }
+    #comsPgCont{
+        height:10%;
+    }
+    #callsign{
+        position: relative;
+        top:30%;
+    }
+    #statusSelect{
+        position:relative;
+        top:30%;
+
+    }
+}
+#buttonUpdate{
+    top:40%;
 }

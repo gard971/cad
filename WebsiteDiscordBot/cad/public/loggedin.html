@@ -21,15 +21,15 @@
     </form>
 </container>
 <container id="comsCont" hidden>
-    <img id="coms" src="media/coms.png" onclick="windowHandle('comsPgCont', false)">
+    <img id="coms" src="media/coms.png" onclick="windowHandle('comsPgCont', false); // for(var i = 0; i<document.getElementById('comsPgCont').children.length; i++){centerElement(document.getElementById('comsPgCont').children[i].id)}">
 </container>
 <container id="comsPgCont" hidden>
-    <p id="currentCall">Current Call: <container id="currentCallVar">None</container></p>
-    <input id="callsign" placeholder="callsign"><button onclick="callsign()">Update</button><br><br>
+    <p class="centerX" id="currentCall">Current Call: <container id="currentCallVar">None</container></p>
+    <input class="centerX" id="callsign" placeholder="callsign"><button class="marginCenterX" id="buttonUpdate" onclick="callsign()">Update</button><br><br>
     <img id="close" src="media/close.png" onclick="windowHandle('comsPgCont', true)">
     <p id="DP">Dispatch</p>
-    <p id="currentCallsign">Current callsign: <container id="callsignParam">None</container></p>
-    <select id="statusSelect" onchange="callsign()">
+    <p class="centerX" id="currentCallsign">Current callsign: <container id="callsignParam">None</container></p>
+    <select class="centerX" id="statusSelect" onchange="callsign()">
         <option id="10-7" value="10-7">10-7</option>
         <option id="10-8" value="10-8">10-8</option>
         <option id="10-6" value="10-6">10-6</option>

@@ -9,7 +9,7 @@
   "author": "Gard Soreng",
   "license": "ISC",
   "dependencies": {
-    "async": "^3.2.0",
+    "async": "^3.2.2",
     "bcrypt": "^5.0.0",
     "discord.js": "^12.2.0",
     "dotenv": "^8.2.0",
